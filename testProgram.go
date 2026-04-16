@@ -4,4 +4,6 @@ import (
 	"fmt"
 )
 
-func testProgram() {}
+func testProgram() {
+	fmt.Println("This is a test program.")
+}
