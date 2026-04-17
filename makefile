@@ -1,5 +1,5 @@
 build:
-	go build -o totion .
+	@go build -o totion .
 
 run:
-	./totion
+	@./totion
