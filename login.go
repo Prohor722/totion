@@ -28,50 +28,7 @@ var sessions = make(map[string]*Session)
 
 // RegisterUser creates a new user account
 // Returns error message if registration fails, empty string if successful
-func RegisterUser(username, email, password string) string {
-	// Validation checks
-	if username == "" || email == "" || password == "" {
-		return "Error: All fields are required"
-	}
 
-	if len(username) < 3 {
-		return "Error: Username must be at least 3 characters"
-	}
-
-	if len(password) < 6 {
-		return "Error: Password must be at least 6 characters"
-	}
-
-	if !strings.Contains(email, "@") {
-		return "Error: Invalid email format"
-	}
-
-	// Check if username already exists
-	if _, exists := userDatabase[username]; exists {
-		return "Error: Username already exists"
-	}
-
-	// Check if email already exists
-	for _, user := range userDatabase {
-		if user.Email == email {
-			return "Error: Email already registered"
-		}
-	}
-
-	// Hash the password
-	hashedPassword := hashPassword(password)
-
-	// Create and store the user
-	newUser := &User{
-		Username:     username,
-		Email:        email,
-		PasswordHash: hashedPassword,
-	}
-
-	userDatabase[username] = newUser
-	fmt.Printf("✓ User '%s' registered successfully\n", username)
-	return ""
-}
 
 // LoginUser authenticates a user and creates a session
 // Returns session ID if successful, error message if failed
@@ -103,18 +60,7 @@ func LoginUser(username, password string) (string, string) {
 	return sessionID, ""
 }
 
-// LogoutUser ends a user session
-func LogoutUser(sessionID string) string {
-	session, exists := sessions[sessionID]
-	if !exists {
-		return "Error: Session not found"
-	}
 
-	session.IsActive = false
-	delete(sessions, sessionID)
-	fmt.Printf("✓ User '%s' logged out successfully\n", session.Username)
-	return ""
-}
 
 // ValidateSession checks if a session is active
 func ValidateSession(sessionID string) (bool, string) {
@@ -125,31 +71,7 @@ func ValidateSession(sessionID string) (bool, string) {
 	return true, session.Username
 }
 
-// GetUserInfo retrieves user information (requires active session)
-func GetUserInfo(sessionID string) (*User, string) {
-	isValid, username := ValidateSession(sessionID)
-	if !isValid {
-		return nil, "Error: Invalid or expired session"
-	}
 
-	user, exists := userDatabase[username]
-	if !exists {
-		return nil, "Error: User not found"
-	}
-
-	return user, ""
-}
-
-// hashPassword creates a SHA256 hash of the password
-func hashPassword(password string) string {
-	hash := sha256.Sum256([]byte(password))
-	return fmt.Sprintf("%x", hash)
-}
-
-// verifyPassword checks if the provided password matches the hash
-func verifyPassword(password, hash string) bool {
-	return hashPassword(password) == hash
-}
 
 // generateSessionID creates a simple session ID
 func generateSessionID(username string) string {
@@ -174,30 +96,5 @@ func DeleteUser(username string) string {
 
 	delete(userDatabase, username)
 	fmt.Printf("✓ User '%s' deleted successfully\n", username)
-	return ""
-}
-
-// ChangePassword allows a user to change their password (requires valid session)
-func ChangePassword(sessionID, oldPassword, newPassword string) string {
-	isValid, username := ValidateSession(sessionID)
-	if !isValid {
-		return "Error: Invalid or expired session"
-	}
-
-	if newPassword == "" || len(newPassword) < 6 {
-		return "Error: New password must be at least 6 characters"
-	}
-
-	user, exists := userDatabase[username]
-	if !exists {
-		return "Error: User not found"
-	}
-
-	if !verifyPassword(oldPassword, user.PasswordHash) {
-		return "Error: Current password is incorrect"
-	}
-
-	user.PasswordHash = hashPassword(newPassword)
-	fmt.Printf("✓ Password changed successfully for user '%s'\n", username)
 	return ""
 }
