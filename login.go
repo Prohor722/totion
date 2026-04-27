@@ -60,7 +60,18 @@ func LoginUser(username, password string) (string, string) {
 	return sessionID, ""
 }
 
+// LogoutUser ends a user session
+func LogoutUser(sessionID string) string {
+	session, exists := sessions[sessionID]
+	if !exists {
+		return "Error: Session not found"
+	}
 
+	session.IsActive = false
+	delete(sessions, sessionID)
+	fmt.Printf("✓ User '%s' logged out successfully\n", session.Username)
+	return ""
+}
 
 // ValidateSession checks if a session is active
 func ValidateSession(sessionID string) (bool, string) {
