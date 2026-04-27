@@ -71,6 +71,20 @@ func ValidateSession(sessionID string) (bool, string) {
 	return true, session.Username
 }
 
+// GetUserInfo retrieves user information (requires active session)
+func GetUserInfo(sessionID string) (*User, string) {
+	isValid, username := ValidateSession(sessionID)
+	if !isValid {
+		return nil, "Error: Invalid or expired session"
+	}
+
+	user, exists := userDatabase[username]
+	if !exists {
+		return nil, "Error: User not found"
+	}
+
+	return user, ""
+}
 
 // hashPassword creates a SHA256 hash of the password
 func hashPassword(password string) string {
