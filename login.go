@@ -92,11 +92,6 @@ func GetUserInfo(sessionID string) (*User, string) {
 	return user, ""
 }
 
-// verifyPassword checks if the provided password matches the hash
-func verifyPassword(password, hash string) bool {
-	return hashPassword(password) == hash
-}
-
 // generateSessionID creates a simple session ID
 func generateSessionID(username string) string {
 	hash := sha256.Sum256([]byte(username + fmt.Sprintf("%d", len(sessions))))
