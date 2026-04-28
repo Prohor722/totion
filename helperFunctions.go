@@ -1,5 +1,9 @@
 package main
 
+import (
+	"crypto/sha256"
+	"fmt"
+)
 
 // hashPassword creates a SHA256 hash of the password
 func hashPassword(password string) string {
