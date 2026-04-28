@@ -1,3 +1,9 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+)
 // RegisterUser creates a new user account
 // Returns error message if registration fails, empty string if successful
 func RegisterUser(username, email, password string) string {
