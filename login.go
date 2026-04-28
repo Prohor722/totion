@@ -92,12 +92,6 @@ func GetUserInfo(sessionID string) (*User, string) {
 	return user, ""
 }
 
-// generateSessionID creates a simple session ID
-func generateSessionID(username string) string {
-	hash := sha256.Sum256([]byte(username + fmt.Sprintf("%d", len(sessions))))
-	return fmt.Sprintf("%x", hash)[:16]
-}
-
 // ListAllUsers returns all registered users (for admin purposes)
 func ListAllUsers() []string {
 	var usernames []string
