@@ -55,3 +55,14 @@ func ListAllUsers() []string {
 	}
 	return usernames
 }
+
+// DeleteUser removes a user from the system
+func DeleteUser(username string) string {
+	if _, exists := userDatabase[username]; !exists {
+		return "Error: User not found"
+	}
+
+	delete(userDatabase, username)
+	fmt.Printf("✓ User '%s' deleted successfully\n", username)
+	return ""
+}
