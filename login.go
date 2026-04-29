@@ -67,15 +67,6 @@ func LogoutUser(sessionID string) string {
 	return ""
 }
 
-// ValidateSession checks if a session is active
-func ValidateSession(sessionID string) (bool, string) {
-	session, exists := sessions[sessionID]
-	if !exists || !session.IsActive {
-		return false, ""
-	}
-	return true, session.Username
-}
-
 // GetUserInfo retrieves user information (requires active session)
 func GetUserInfo(sessionID string) (*User, string) {
 	isValid, username := ValidateSession(sessionID)

@@ -21,3 +21,12 @@ func generateSessionID(username string) string {
 	hash := sha256.Sum256([]byte(username + fmt.Sprintf("%d", len(sessions))))
 	return fmt.Sprintf("%x", hash)[:16]
 }
+
+// ValidateSession checks if a session is active
+func ValidateSession(sessionID string) (bool, string) {
+	session, exists := sessions[sessionID]
+	if !exists || !session.IsActive {
+		return false, ""
+	}
+	return true, session.Username
+}
