@@ -31,13 +31,6 @@ func ValidateSession(sessionID string) (bool, string) {
 	return true, session.Username
 }
 
-
-
-
-
-
-
-
 // ChangePassword allows a user to change their password (requires valid session)
 func ChangePassword(sessionID, oldPassword, newPassword string) string {
 	isValid, username := ValidateSession(sessionID)

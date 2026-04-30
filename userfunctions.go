@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 // GetUserInfo retrieves user information (requires active session)
 func GetUserInfo(sessionID string) (*User, string) {
 	isValid, username := ValidateSession(sessionID)
