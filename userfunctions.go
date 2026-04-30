@@ -14,3 +14,12 @@ func GetUserInfo(sessionID string) (*User, string) {
 
 	return user, ""
 }
+
+// ListAllUsers returns all registered users (for admin purposes)
+func ListAllUsers() []string {
+	var usernames []string
+	for username := range userDatabase {
+		usernames = append(usernames, username)
+	}
+	return usernames
+}

@@ -34,14 +34,7 @@ func ValidateSession(sessionID string) (bool, string) {
 
 
 
-// ListAllUsers returns all registered users (for admin purposes)
-func ListAllUsers() []string {
-	var usernames []string
-	for username := range userDatabase {
-		usernames = append(usernames, username)
-	}
-	return usernames
-}
+
 
 // DeleteUser removes a user from the system
 func DeleteUser(username string) string {
