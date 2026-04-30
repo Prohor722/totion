@@ -30,28 +30,3 @@ func ValidateSession(sessionID string) (bool, string) {
 	}
 	return true, session.Username
 }
-
-// ChangePassword allows a user to change their password (requires valid session)
-func ChangePassword(sessionID, oldPassword, newPassword string) string {
-	isValid, username := ValidateSession(sessionID)
-	if !isValid {
-		return "Error: Invalid or expired session"
-	}
-
-	if newPassword == "" || len(newPassword) < 6 {
-		return "Error: New password must be at least 6 characters"
-	}
-
-	user, exists := userDatabase[username]
-	if !exists {
-		return "Error: User not found"
-	}
-
-	if !verifyPassword(oldPassword, user.PasswordHash) {
-		return "Error: Current password is incorrect"
-	}
-
-	user.PasswordHash = hashPassword(newPassword)
-	fmt.Printf("✓ Password changed successfully for user '%s'\n", username)
-	return ""
-}
