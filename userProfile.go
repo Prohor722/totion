@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 // UserProfile represents a user's profile information
 type UserProfile struct {
 	Username string
@@ -30,7 +34,11 @@ func UpdateUserProfile(username, email, bio string) string {
 	if email != "" {
 		user.Email = email
 	}
+	if bio != "" {
+		user.Bio = bio
+	}
 	// In a real application, you would also update the bio in the database
 	fmt.Printf("✓ User '%s' profile updated successfully\n", username)
 	return ""
 }
+
