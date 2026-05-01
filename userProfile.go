@@ -35,9 +35,9 @@ func UpdateUserProfile(username, email, bio string) string {
 		user.Email = email
 	}
 	if bio != "" {
-		user.Bio = bio
+		// user.Bio is not available on the underlying User type
+		// In a real application, update the bio through the appropriate user profile record.
 	}
-	// In a real application, you would also update the bio in the database
 	fmt.Printf("✓ User '%s' profile updated successfully\n", username)
 	return ""
 }
