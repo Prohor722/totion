@@ -6,3 +6,10 @@ type UserProfile struct {
 	Email    string
 	Bio      string
 }
+
+// GetUserProfile retrieves the profile of a user
+func GetUserProfile(username string) (*UserProfile, string) {
+	user, exists := userDatabase[username]
+	if !exists {
+		return nil, "Error: User not found"
+	}
