@@ -26,3 +26,11 @@ func UpdateUserProfile(username, email, bio string) string {
 	if !exists {
 		return "Error: User not found"
 	}
+	if email != "" {
+		user.Email = email
+	}
+	if bio != "" {
+		user.Bio = bio
+	}
+	return ""
+}
