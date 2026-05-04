@@ -12,10 +12,5 @@ func GetUserProfile(username string) (*UserProfile, string){
 	if !exists {
 		return nil, "Error: User not found"
 	}
-	profile := &UserProfile{
-		Username: user.Username,
-		Email:    user.Email,
-		Bio:      "This is a user bio.", // Placeholder bio
-	}
 	return profile, ""
 }
