@@ -19,18 +19,3 @@ func GetUserProfile(username string) (*UserProfile, string){
 	}
 	return profile, ""
 }
-
-// UpdateUserProfile updates the profile information of a user
-func UpdateUserProfile(username, email, bio string) string {
-	user, exists := userDatabase[username]
-	if !exists {
-		return "Error: User not found"
-	}
-	if email != "" {
-		user.Email = email
-	}
-	if bio != "" {
-		user.Bio = bio
-	}
-	return ""
-}
