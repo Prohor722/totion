@@ -46,4 +46,35 @@ func ProcessTerminalInput() {
 				fmt.Println("Usage: logout <sessionID>")
 				continue
 			}
-			
+
+			fmt.Println(LogoutUser(args[1]))
+		case "info":
+			if len(args) != 2 {
+				fmt.Println("Usage: info <sessionID>")
+				continue
+			}
+			user, err := GetUserInfo(args[1])
+			if err != "" {
+				fmt.Println(err)
+			} else {
+				fmt.Printf("Username: %s, Email: %s\n", user.Username, user.Email)
+			}
+		case "list":
+			fmt.Println("Registered users:")
+			for _, username := range ListAllUsers() {
+				fmt.Printf("  - %s\n", username)
+			}
+		case "delete":
+			if len(args) != 2 {
+				fmt.Println("Usage: delete <username>")
+				continue
+			}
+			fmt.Println(DeleteUser(args[1]))
+		case "changepassword":
+			if len(args) != 4 {
+				fmt.Println("Usage: changepassword <sessionID> <oldPassword> <newPassword>")
+				continue
+			}
+			fmt.Println(ChangePassword(args[1], args[2], args[3]))
+		case "exit":
+			fmt.Println("Exiting...")
