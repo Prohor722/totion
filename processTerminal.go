@@ -29,3 +29,21 @@ func ProcessTerminalInput() {
 				fmt.Println("Usage: register <username> <email> <password>")
 				continue
 			}
+			fmt.Println(RegisterUser(args[1], args[2], args[3]))
+		case "login":
+			if len(args) != 3 {
+				fmt.Println("Usage: login <username> <password>")
+				continue
+			}
+			sessionID, err := LoginUser(args[1], args[2])
+			if err != "" {
+				fmt.Println(err)
+			} else {
+				fmt.Printf("Logged in successfully. Session ID: %s\n", sessionID)
+			}
+		case "logout":
+			if len(args) != 2 {
+				fmt.Println("Usage: logout <sessionID>")
+				continue
+			}
+			
