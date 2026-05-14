@@ -78,3 +78,9 @@ func ProcessTerminalInput() {
 			fmt.Println(ChangePassword(args[1], args[2], args[3]))
 		case "exit":
 			fmt.Println("Exiting...")
+			return
+		default:
+			fmt.Println("Unknown command. Available commands: register, login, logout, info, list, delete, changepassword, exit")
+		}
+	}
+}
