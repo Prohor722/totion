@@ -31,7 +31,7 @@ type SessionService interface {
 type defaultUserService struct{}
 
 func (d *defaultUserService) Register(u, e, p string) string { return RegisterUser(u, e, p) }
-func (d *defaultUserService) ListAll() []string               { return ListAllUsers() }
+func (d *defaultUserService) ListAll() []string              { return ListAllUsers() }
 func (d *defaultUserService) Delete(u string) string         { return DeleteUser(u) }
 func (d *defaultUserService) ChangePassword(s, o, n string) string {
 	return ChangePassword(s, o, n)
@@ -41,10 +41,11 @@ func (d *defaultUserService) GetInfo(sessionID string) (User, string) { return G
 type defaultSessionService struct{}
 
 func (d *defaultSessionService) Login(u, p string) (string, string) { return LoginUser(u, p) }
-func (d *defaultSessionService) Logout(s string) string           { return LogoutUser(s) }
+func (d *defaultSessionService) Logout(s string) string             { return LogoutUser(s) }
 
 // Concrete command implementations
 type registerCommand struct{ users UserService }
+
 func (c *registerCommand) Execute(args []string) string {
 	if len(args) != 4 {
 		return "Usage: register <username> <email> <password>"
@@ -53,6 +54,7 @@ func (c *registerCommand) Execute(args []string) string {
 }
 
 type loginCommand struct{ sessions SessionService }
+
 func (c *loginCommand) Execute(args []string) string {
 	if len(args) != 3 {
 		return "Usage: login <username> <password>"
@@ -65,6 +67,7 @@ func (c *loginCommand) Execute(args []string) string {
 }
 
 type logoutCommand struct{ sessions SessionService }
+
 func (c *logoutCommand) Execute(args []string) string {
 	if len(args) != 2 {
 		return "Usage: logout <sessionID>"
@@ -73,6 +76,7 @@ func (c *logoutCommand) Execute(args []string) string {
 }
 
 type infoCommand struct{ users UserService }
+
 func (c *infoCommand) Execute(args []string) string {
 	if len(args) != 2 {
 		return "Usage: info <sessionID>"
@@ -85,6 +89,7 @@ func (c *infoCommand) Execute(args []string) string {
 }
 
 type listCommand struct{ users UserService }
+
 func (c *listCommand) Execute(args []string) string {
 	users := c.users.ListAll()
 	if len(users) == 0 {
@@ -101,6 +106,7 @@ func (c *listCommand) Execute(args []string) string {
 }
 
 type deleteCommand struct{ users UserService }
+
 func (c *deleteCommand) Execute(args []string) string {
 	if len(args) != 2 {
 		return "Usage: delete <username>"
@@ -109,6 +115,7 @@ func (c *deleteCommand) Execute(args []string) string {
 }
 
 type changePasswordCommand struct{ users UserService }
+
 func (c *changePasswordCommand) Execute(args []string) string {
 	if len(args) != 4 {
 		return "Usage: changepassword <sessionID> <oldPassword> <newPassword>"
