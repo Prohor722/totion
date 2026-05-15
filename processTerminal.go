@@ -18,7 +18,7 @@ type UserService interface {
 	ListAll() []string
 	Delete(username string) string
 	ChangePassword(sessionID, oldPassword, newPassword string) string
-	GetInfo(sessionID string) (User, string)
+	GetInfo(sessionID string) (*User, string)
 }
 
 // SessionService defines session-related operations used by commands
@@ -36,7 +36,7 @@ func (d *defaultUserService) Delete(u string) string         { return DeleteUser
 func (d *defaultUserService) ChangePassword(s, o, n string) string {
 	return ChangePassword(s, o, n)
 }
-func (d *defaultUserService) GetInfo(sessionID string) (User, string) { return GetUserInfo(sessionID) }
+func (d *defaultUserService) GetInfo(sessionID string) (*User, string) { return GetUserInfo(sessionID) }
 
 type defaultSessionService struct{}
 
@@ -84,6 +84,9 @@ func (c *infoCommand) Execute(args []string) string {
 	user, err := c.users.GetInfo(args[1])
 	if err != "" {
 		return err
+	}
+	if user == nil {
+		return "Error: User not found"
 	}
 	return fmt.Sprintf("Username: %s, Email: %s", user.Username, user.Email)
 }
@@ -169,3 +172,4 @@ func ProcessTerminalInput() {
 		}
 	}
 }
+
