@@ -41,9 +41,9 @@ func RegisterUser(username, email, password string) string {
 
 	// Create and store the user
 	newUser := &User{
-		Username:     username,
-		Email:        email,
-		PasswordHash: hashedPassword,
+		Username: username,
+		Email:    email,
+		Password: hashedPassword,
 	}
 
 	userDatabase[username] = newUser
