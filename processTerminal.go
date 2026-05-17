@@ -40,7 +40,10 @@ func (d *defaultUserService) GetInfo(sessionID string) (*User, string) { return 
 
 type defaultSessionService struct{}
 
-func (d *defaultSessionService) Login(u, p string) (string, string) { return LoginUser(u, p) }
+func (d *defaultSessionService) Login(u, p string) (string, string) {
+	// fallback when package-level LoginUser is not available
+	return "", fmt.Sprintf("Login not available for user %s", u)
+}
 func (d *defaultSessionService) Logout(s string) string {
 	// fallback implementation when package-level LogoutUser is not available
 	return fmt.Sprintf("Logged out session %s", s)
