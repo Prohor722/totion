@@ -4,6 +4,16 @@ import (
 	"fmt"
 )
 
+// ValidateSession checks if a sessionID corresponds to an active session.
+// For now, treat a non-empty sessionID as valid and return it as the username.
+func ValidateSession(sessionID string) (bool, string) {
+	if sessionID == "" {
+		return false, ""
+	}
+	// In a real implementation, sessionID would be looked up in a session store.
+	return true, sessionID
+}
+
 // GetUserInfo retrieves user information (requires active session)
 func GetUserInfo(sessionID string) (*User, string) {
 	isValid, username := ValidateSession(sessionID)
