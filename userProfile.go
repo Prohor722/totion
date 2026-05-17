@@ -56,6 +56,8 @@ func (s *profileService) UpdateProfile(username, email, bio string) error {
 		}
 
 		user.Email = email
+
+
 		user.Profile.Email = email
 	}
 
