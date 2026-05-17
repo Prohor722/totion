@@ -1,44 +1,68 @@
 package main
 
-import (
-	"fmt"
-)
+import "errors"
 
-// UserProfile represents a user's profile information
+type User struct {
+	Username     string
+	Email        string
+	PasswordHash string
+	Profile      *UserProfile
+}
+
 type UserProfile struct {
 	Username string
 	Email    string
 	Bio      string
 }
 
-// GetUserProfile retrieves the profile of a user
-func GetUserProfile(username string) (*UserProfile, string) {
-	user, exists := userDatabase[username]
-	if !exists {
-		return nil, "Error: User not found"
-	}
-	profile := &UserProfile{
-		Username: user.Username,
-		Email:    user.Email,
-		Bio:      "This is a user bio.", // Placeholder bio
-	}
-	return profile, ""
+type ProfileService interface {
+	GetProfile(username string) (*UserProfile, error)
+	UpdateProfile(username, email, bio string) error
 }
 
-// UpdateUserProfile updates the profile information of a user
-func UpdateUserProfile(username, email, bio string) string {
-	user, exists := userDatabase[username]
+type profileService struct {
+	users UserRepository
+}
+
+func NewProfileService(users UserRepository) ProfileService {
+	return &profileService{users: users}
+}
+
+func (s *profileService) GetProfile(username string) (*UserProfile, error) {
+	user, exists := s.users.Get(username)
 	if !exists {
-		return "Error: User not found"
+		return nil, errors.New("user not found")
 	}
+	return &UserProfile{
+		Username: user.Username,
+		Email:    user.Email,
+		Bio:      user.Profile.Bio,
+	}, nil
+}
+
+func (s *profileService) UpdateProfile(username, email, bio string) error {
+	user, exists := s.users.Get(username)
+	if !exists {
+		return errors.New("user not found")
+	}
+
 	if email != "" {
+		if !isValidEmail(email) {
+			return errors.New("invalid email format")
+		}
+
+		if existing, found := s.users.FindByEmail(email); found && existing.Username != username {
+			return errors.New("email already registered")
+		}
+
 		user.Email = email
+		user.Profile.Email = email
 	}
+
 	if bio != "" {
-		// user.Bio is not available on the underlying User type
-		// In a real application, update the bio through the appropriate user profile record.
+		user.Profile.Bio = bio
 	}
-	fmt.Printf("✓ User '%s' profile updated successfully\n", username)
-	return ""
+
+	return nil
 }
 
