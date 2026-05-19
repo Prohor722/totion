@@ -21,7 +21,7 @@ func GetUserInfo(sessionID string) (*User, string) {
 		return nil, "Error: Invalid or expired session"
 	}
 
-	user, exists := userDatabase[username]
+	user, exists := UserStore.Get(username)
 	if !exists {
 		return nil, "Error: User not found"
 	}
@@ -31,20 +31,14 @@ func GetUserInfo(sessionID string) (*User, string) {
 
 // ListAllUsers returns all registered users (for admin purposes)
 func ListAllUsers() []string {
-	var usernames []string
-	for username := range userDatabase {
-		usernames = append(usernames, username)
-	}
-	return usernames
+	return UserStore.List()
 }
 
 // DeleteUser removes a user from the system
 func DeleteUser(username string) string {
-	if _, exists := userDatabase[username]; !exists {
-		return "Error: User not found"
+	if err := UserStore.Delete(username); err != nil {
+		return "Error: " + err.Error()
 	}
-
-	delete(userDatabase, username)
 	fmt.Printf("✓ User '%s' deleted successfully\n", username)
 	return ""
 }
@@ -60,7 +54,7 @@ func ChangePassword(sessionID, oldPassword, newPassword string) string {
 		return "Error: New password must be at least 6 characters"
 	}
 
-	user, exists := userDatabase[username]
+	user, exists := UserStore.Get(username)
 	if !exists {
 		return "Error: User not found"
 	}

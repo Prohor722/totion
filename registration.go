@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
-// RegisterUser creates a new user account
+
+// RegisterUser creates a new user account using the repository
 // Returns error message if registration fails, empty string if successful
 func RegisterUser(username, email, password string) string {
-	// Validation checks
 	if username == "" || email == "" || password == "" {
 		return "Error: All fields are required"
 	}
@@ -20,33 +19,33 @@ func RegisterUser(username, email, password string) string {
 		return "Error: Password must be at least 6 characters"
 	}
 
-	if !strings.Contains(email, "@") {
+	if !isValidEmail(email) {
 		return "Error: Invalid email format"
 	}
 
-	// Check if username already exists
-	if _, exists := userDatabase[username]; exists {
+	if UserStore.Exists(username) {
 		return "Error: Username already exists"
 	}
 
-	// Check if email already exists
-	for _, user := range userDatabase {
-		if user.Email == email {
-			return "Error: Email already registered"
-		}
+	if _, found := UserStore.FindByEmail(email); found {
+		return "Error: Email already registered"
 	}
 
-	// Hash the password
-	hashedPassword := hashPassword(password)
-
-	// Create and store the user
 	newUser := &User{
-		Username: username,
-		Email:    email,
-		Password: hashedPassword,
+		Username:     username,
+		Email:        email,
+		PasswordHash: hashPassword(password),
+		Profile: &UserProfile{
+			Username: username,
+			Email:    email,
+			Bio:      "",
+		},
 	}
 
-	userDatabase[username] = newUser
+	if err := UserStore.Add(newUser); err != nil {
+		return "Error: " + err.Error()
+	}
+
 	fmt.Printf("✓ User '%s' registered successfully\n", username)
 	return ""
 }
