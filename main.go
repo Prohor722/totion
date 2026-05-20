@@ -5,7 +5,8 @@ import "fmt"
 func main() {
 	testProgram()
 	fmt.Println("Welcome to totion app")
-	fmt.Println("\n--- Login System Demo ---\n")
+	fmt.Println("--- Login System Demo ---")
+	fmt.Println()
 
 	// Register users
 	fmt.Println("1. Registering users...")
