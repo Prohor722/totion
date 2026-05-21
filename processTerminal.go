@@ -27,26 +27,60 @@ type SessionService interface {
 	Logout(sessionID string) string
 }
 
-// Default adapters that call the existing package-level functions
-type defaultUserService struct{}
-
-func (d *defaultUserService) Register(u, e, p string) string { return RegisterUser(u, e, p) }
-func (d *defaultUserService) ListAll() []string              { return ListAllUsers() }
-func (d *defaultUserService) Delete(u string) string         { return DeleteUser(u) }
-func (d *defaultUserService) ChangePassword(s, o, n string) string {
-	return ChangePassword(s, o, n)
-}
-func (d *defaultUserService) GetInfo(sessionID string) (*User, string) { return GetUserInfo(sessionID) }
-
-type defaultSessionService struct{}
-
-func (d *defaultSessionService) Login(u, p string) (string, string) {
-	sid, err := LoginUser(u, p)
-	return sid, err
+type authUserService struct {
+	auth AuthService
 }
 
-func (d *defaultSessionService) Logout(s string) string {
-	return LogoutUser(s)
+func (d *authUserService) Register(u, e, p string) string {
+	if err := d.auth.Register(u, e, p); err != nil {
+		return "Error: " + err.Error()
+	}
+	return ""
+}
+
+func (d *authUserService) ListAll() []string {
+	return d.auth.ListUsernames()
+}
+
+func (d *authUserService) Delete(u string) string {
+	if err := d.auth.DeleteUser(u); err != nil {
+		return "Error: " + err.Error()
+	}
+	return ""
+}
+
+func (d *authUserService) ChangePassword(s, o, n string) string {
+	if err := d.auth.ChangePassword(s, o, n); err != nil {
+		return "Error: " + err.Error()
+	}
+	return ""
+}
+
+func (d *authUserService) GetInfo(sessionID string) (*User, string) {
+	user, err := d.auth.GetUserInfo(sessionID)
+	if err != nil {
+		return nil, "Error: " + err.Error()
+	}
+	return user, ""
+}
+
+type authSessionService struct {
+	auth AuthService
+}
+
+func (d *authSessionService) Login(u, p string) (string, string) {
+	sid, err := d.auth.Login(u, p)
+	if err != nil {
+		return "", "Error: " + err.Error()
+	}
+	return sid, ""
+}
+
+func (d *authSessionService) Logout(s string) string {
+	if err := d.auth.Logout(s); err != nil {
+		return "Error: " + err.Error()
+	}
+	return ""
 }
 
 // Concrete command implementations
@@ -133,14 +167,14 @@ func (c *changePasswordCommand) Execute(args []string) string {
 }
 
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
-func ProcessTerminalInput() {
+func ProcessTerminalInputWithAuth(auth AuthService) {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Welcome to the User Management System")
 	fmt.Println("Available commands: register, login, logout, info, list, delete, changepassword, exit")
 
 	// build services and command registry (dependencies injected)
-	us := &defaultUserService{}
-	ss := &defaultSessionService{}
+	us := &authUserService{auth: auth}
+	ss := &authSessionService{auth: auth}
 
 	commands := map[string]Command{
 		"register":       &registerCommand{users: us},
