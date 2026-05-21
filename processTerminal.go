@@ -212,3 +212,8 @@ func ProcessTerminalInputWithAuth(auth AuthService) {
 		}
 	}
 }
+
+// ProcessTerminalInput starts the interactive CLI with the default auth service.
+func ProcessTerminalInput() {
+	ProcessTerminalInputWithAuth(DefaultAuth)
+}
