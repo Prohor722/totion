@@ -180,4 +180,3 @@ func (s *authService) ListUsernames() []string {
 func (s *authService) DeleteUser(username string) error {
 	return s.users.Delete(username)
 }
-
