@@ -28,6 +28,9 @@ func NewProfileService(users UserRepository) ProfileService {
 	return &profileService{users: users}
 }
 
+// DefaultProfileService is the package-level profile service.
+var DefaultProfileService ProfileService = NewProfileService(UserStore)
+
 func (s *profileService) GetProfile(username string) (*UserProfile, error) {
 	user, exists := s.users.Get(username)
 	if !exists {
