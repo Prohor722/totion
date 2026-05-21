@@ -52,6 +52,9 @@ func NewAuthService(users UserRepository, sessions SessionRepository) AuthServic
 	return &authService{users: users, sessions: sessions}
 }
 
+// DefaultAuth is the package-level auth service used by the app.
+var DefaultAuth AuthService = NewAuthService(UserStore, NewInMemorySessionRepository())
+
 func (s *authService) Register(username, email, password string) error {
 	if username == "" || email == "" || password == "" {
 		return errors.New("all fields are required")
