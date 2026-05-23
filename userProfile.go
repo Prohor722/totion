@@ -15,11 +15,15 @@ type UserProfile struct {
 	Bio      string
 }
 
+// ProfileService defines low-level profile data operations.
+// Focused on persistence and retrieval - Single Responsibility Principle.
 type ProfileService interface {
 	GetProfile(username string) (*UserProfile, error)
 	UpdateProfile(username, email, bio string) error
 }
 
+// profileService implements ProfileService using a UserRepository.
+// Dependency Inversion: depends on UserRepository abstraction, not concrete implementations.
 type profileService struct {
 	users UserRepository
 }
@@ -68,4 +72,57 @@ func (s *profileService) UpdateProfile(username, email, bio string) error {
 	}
 
 	return nil
+}
+
+// ProfileManager defines high-level profile management operations.
+// This interface follows Interface Segregation Principle - clients depend on specific operations.
+type ProfileManager interface {
+	GetUserProfile(username string) (*UserProfile, string)
+	UpdateUserProfile(username, email, bio string) string
+}
+
+// defaultProfileManager implements ProfileManager by delegating to ProfileService.
+// This follows Dependency Inversion Principle - concrete implementation depends on abstraction.
+type defaultProfileManager struct {
+	service ProfileService
+}
+
+// NewDefaultProfileManager creates a new ProfileManager with the given ProfileService.
+func NewDefaultProfileManager(service ProfileService) ProfileManager {
+	return &defaultProfileManager{service: service}
+}
+
+// GetUserProfile retrieves a user's profile by username.
+// This method is responsible for profile retrieval only - Single Responsibility Principle.
+func (m *defaultProfileManager) GetUserProfile(username string) (*UserProfile, string) {
+	profile, err := m.service.GetProfile(username)
+	if err != nil {
+		return nil, "Error: " + err.Error()
+	}
+	return profile, ""
+}
+
+// UpdateUserProfile updates a user's profile information.
+// This method is responsible for profile updates only - Single Responsibility Principle.
+func (m *defaultProfileManager) UpdateUserProfile(username, email, bio string) string {
+	if err := m.service.UpdateProfile(username, email, bio); err != nil {
+		return "Error: " + err.Error()
+	}
+	return ""
+}
+
+// Legacy package-level functions that use the default global ProfileManager.
+// These maintain backwards compatibility with existing code.
+
+// profileManager is the default global instance.
+var profileManager ProfileManager = NewDefaultProfileManager(DefaultProfileService)
+
+// GetUserProfile retrieves a user's profile by username.
+func GetUserProfile(username string) (*UserProfile, string) {
+	return profileManager.GetUserProfile(username)
+}
+
+// UpdateUserProfile updates a user's profile information.
+func UpdateUserProfile(username, email, bio string) string {
+	return profileManager.UpdateUserProfile(username, email, bio)
 }
