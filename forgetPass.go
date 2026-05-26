@@ -8,7 +8,10 @@ type ForgetPasswordService interface {
 	ResetPassword(token, newPassword string) string
 }
 
-
 type forgetPasswordService struct {
 	auth AuthService
+}
+
+func NewForgetPasswordService(auth AuthService) ForgetPasswordService {
+	return &forgetPasswordService{auth: auth}
 }
