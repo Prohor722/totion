@@ -15,3 +15,13 @@ type forgetPasswordService struct {
 func NewForgetPasswordService(auth AuthService) ForgetPasswordService {
 	return &forgetPasswordService{auth: auth}
 }
+
+func (s *forgetPasswordService) RequestReset(email string) string {
+	user, exists := s.auth.FindUserByEmail(email)
+	if !exists {
+		return "Error: email not found"
+	}
+	// In a real implementation, generate a secure token and send an email
+	fmt.Printf("✓ Password reset requested for '%s'. (Token: dummy-token)\n", user.Username)
+	return ""
+}
