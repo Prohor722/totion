@@ -1,6 +1,8 @@
 package main
 
-import "errors, fmt"
+import (
+	"fmt"
+)
 
 // ForgetPasswordService defines operations for password reset
 type ForgetPasswordService interface {
