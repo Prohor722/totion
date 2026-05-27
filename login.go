@@ -39,17 +39,20 @@ type AuthService interface {
 	ValidateSession(sessionID string) (string, error)
 	GetUserInfo(sessionID string) (*User, error)
 	ChangePassword(sessionID, oldPassword, newPassword string) error
+	CreatePasswordResetToken(email string) (string, error)
+	ResetPasswordWithToken(token, newPassword string) error
 	ListUsernames() []string
 	DeleteUser(username string) error
 }
 
 type authService struct {
-	users    UserRepository
-	sessions SessionRepository
+	users       UserRepository
+	sessions    SessionRepository
+	resetTokens map[string]string
 }
 
 func NewAuthService(users UserRepository, sessions SessionRepository) AuthService {
-	return &authService{users: users, sessions: sessions}
+	return &authService{users: users, sessions: sessions, resetTokens: make(map[string]string)}
 }
 
 // DefaultAuth is the package-level auth service used by the app.
@@ -170,6 +173,36 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 	}
 
 	user.PasswordHash = hashPassword(newPassword)
+	return nil
+}
+
+func (s *authService) CreatePasswordResetToken(email string) (string, error) {
+	user, exists := s.users.FindByEmail(email)
+	if !exists {
+		return "", errors.New("email not found")
+	}
+	token := generateSessionID(user.Username)
+	s.resetTokens[token] = user.Username
+	return token, nil
+}
+
+func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
+	username, exists := s.resetTokens[token]
+	if !exists {
+		return errors.New("invalid token")
+	}
+
+	if len(newPassword) < 6 {
+		return errors.New("new password must be at least 6 characters")
+	}
+
+	user, exists := s.users.Get(username)
+	if !exists {
+		return errors.New("user not found")
+	}
+
+	user.PasswordHash = hashPassword(newPassword)
+	delete(s.resetTokens, token)
 	return nil
 }
 
