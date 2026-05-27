@@ -19,12 +19,11 @@ func NewForgetPasswordService(auth AuthService) ForgetPasswordService {
 }
 
 func (s *forgetPasswordService) RequestReset(email string) string {
-	user, exists := s.auth.FindUserByEmail(email)
-	if !exists {
-		return "Error: email not found"
+	token, err := s.auth.CreatePasswordResetToken(email)
+	if err != nil {
+		return "Error: " + err.Error()
 	}
-	// In a real implementation, generate a secure token and send an email
-	fmt.Printf("✓ Password reset requested for '%s'. (Token: dummy-token)\n", user.Username)
+	fmt.Printf("✓ Password reset requested for '%s'. (Token: %s)\n", email, token)
 	return ""
 }
 
