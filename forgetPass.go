@@ -28,10 +28,6 @@ func (s *forgetPasswordService) RequestReset(email string) string {
 }
 
 func (s *forgetPasswordService) ResetPassword(token, newPassword string) string {
-	// In a real implementation, validate the token and reset the password
-	if token != "dummy-token" {
-		return "Error: invalid token"
-	}
 	if err := s.auth.ResetPasswordWithToken(token, newPassword); err != nil {
 		return "Error: " + err.Error()
 	}
