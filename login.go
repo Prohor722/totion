@@ -224,27 +224,37 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 	if !exists {
 		return "", errors.New("email not found")
 	}
-	token := generateSessionID(user.Username)
-	s.resetTokens[token] = user.Username
+	token := generateSecureToken()
+	s.resetTokens[token] = resetTokenInfo{
+		username:  user.Username,
+		expiresAt: time.Now().Add(resetTokenExpiryDuration),
+	}
 	return token, nil
 }
 
 func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
-	username, exists := s.resetTokens[token]
+	info, exists := s.resetTokens[token]
 	if !exists {
 		return errors.New("invalid token")
 	}
 
-	if len(newPassword) < 6 {
-		return errors.New("new password must be at least 6 characters")
+	if time.Now().After(info.expiresAt) {
+		delete(s.resetTokens, token)
+		return errors.New("token has expired")
 	}
 
-	user, exists := s.users.Get(username)
+	if err := validatePasswordPolicy(newPassword); err != nil {
+		return err
+	}
+
+	user, exists := s.users.Get(info.username)
 	if !exists {
 		return errors.New("user not found")
 	}
 
-	user.PasswordHash = hashPassword(newPassword)
+	salt := generateSalt()
+	user.PasswordSalt = salt
+	user.PasswordHash = hashPassword(newPassword, salt)
 	delete(s.resetTokens, token)
 	return nil
 }
