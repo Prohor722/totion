@@ -1,6 +1,9 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 type SessionRepository interface {
 	Create(session *Session)
@@ -45,14 +48,26 @@ type AuthService interface {
 	DeleteUser(username string) error
 }
 
+const (
+	sessionExpiryDuration     = 30 * time.Minute
+	resetTokenExpiryDuration  = 15 * time.Minute
+	maxFailedLoginAttempts    = 5
+	accountLockoutDuration    = 15 * time.Minute
+)
+
+type resetTokenInfo struct {
+	username  string
+	expiresAt time.Time
+}
+
 type authService struct {
 	users       UserRepository
 	sessions    SessionRepository
-	resetTokens map[string]string
+	resetTokens map[string]resetTokenInfo
 }
 
 func NewAuthService(users UserRepository, sessions SessionRepository) AuthService {
-	return &authService{users: users, sessions: sessions, resetTokens: make(map[string]string)}
+	return &authService{users: users, sessions: sessions, resetTokens: make(map[string]resetTokenInfo)}
 }
 
 // DefaultAuth is the package-level auth service used by the app.
@@ -67,8 +82,8 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("username must be at least 3 characters")
 	}
 
-	if len(password) < 6 {
-		return errors.New("password must be at least 6 characters")
+	if err := validatePasswordPolicy(password); err != nil {
+		return err
 	}
 
 	if !isValidEmail(email) {
@@ -83,10 +98,12 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("email already registered")
 	}
 
+	salt := generateSalt()
 	return s.users.Add(&User{
 		Username:     username,
 		Email:        email,
-		PasswordHash: hashPassword(password),
+		PasswordHash: hashPassword(password, salt),
+		PasswordSalt: salt,
 		Profile: &UserProfile{
 			Username: username,
 			Email:    email,
