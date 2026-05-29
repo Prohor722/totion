@@ -1,12 +1,18 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 type User struct {
-	Username     string
-	Email        string
-	PasswordHash string
-	Profile      *UserProfile
+	Username            string
+	Email               string
+	PasswordHash        string
+	PasswordSalt        string
+	FailedLoginAttempts int
+	LockoutUntil        time.Time
+	Profile             *UserProfile
 }
 
 type UserProfile struct {
