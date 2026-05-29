@@ -170,6 +170,13 @@ func (s *authService) ValidateSession(sessionID string) (string, error) {
 		return "", errors.New("invalid or expired session")
 	}
 
+	if time.Now().After(session.ExpiresAt) {
+		sessions := s.sessions
+		session.IsActive = false
+		sessions.Remove(sessionID)
+		return "", errors.New("session has expired")
+	}
+
 	return session.Username, nil
 }
 
@@ -198,15 +205,17 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 		return errors.New("user not found")
 	}
 
-	if !verifyPassword(oldPassword, user.PasswordHash) {
+	if !verifyPassword(oldPassword, user.PasswordSalt, user.PasswordHash) {
 		return errors.New("current password is incorrect")
 	}
 
-	if len(newPassword) < 6 {
-		return errors.New("new password must be at least 6 characters")
+	if err := validatePasswordPolicy(newPassword); err != nil {
+		return err
 	}
 
-	user.PasswordHash = hashPassword(newPassword)
+	salt := generateSalt()
+	user.PasswordSalt = salt
+	user.PasswordHash = hashPassword(newPassword, salt)
 	return nil
 }
 
