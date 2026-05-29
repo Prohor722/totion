@@ -45,6 +45,7 @@ func isStrongPassword(password string) bool {
 	}
 	return hasUpper && hasLower && hasDigit && hasSymbol
 
+}
 
 func generateSessionID(username string) string {
 	buffer := make([]byte, 16)
