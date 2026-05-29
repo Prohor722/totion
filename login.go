@@ -118,14 +118,31 @@ func (s *authService) Login(username, password string) (string, error) {
 	}
 
 	user, exists := s.users.Get(username)
-	if !exists || !verifyPassword(password, user.PasswordHash) {
+	if !exists {
 		return "", errors.New("invalid username or password")
 	}
+
+	if user.LockoutUntil.After(time.Now()) {
+		return "", errors.New("account locked due to repeated failed login attempts")
+	}
+
+	if !verifyPassword(password, user.PasswordSalt, user.PasswordHash) {
+		user.FailedLoginAttempts++
+		if user.FailedLoginAttempts >= maxFailedLoginAttempts {
+			user.LockoutUntil = time.Now().Add(accountLockoutDuration)
+			return "", errors.New("account locked due to repeated failed login attempts")
+		}
+		return "", errors.New("invalid username or password")
+	}
+
+	user.FailedLoginAttempts = 0
+	user.LockoutUntil = time.Time{}
 
 	sessionID := generateSessionID(username)
 	s.sessions.Create(&Session{
 		Username:  username,
 		SessionID: sessionID,
+		ExpiresAt: time.Now().Add(sessionExpiryDuration),
 		IsActive:  true,
 	})
 
