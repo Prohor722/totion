@@ -48,26 +48,31 @@ type AuthService interface {
 	DeleteUser(username string) error
 }
 
-const (
-	sessionExpiryDuration     = 30 * time.Minute
-	resetTokenExpiryDuration  = 15 * time.Minute
-	maxFailedLoginAttempts    = 5
-	accountLockoutDuration    = 15 * time.Minute
-)
-
-type resetTokenInfo struct {
-	username  string
-	expiresAt time.Time
-}
-
 type authService struct {
 	users       UserRepository
 	sessions    SessionRepository
-	resetTokens map[string]resetTokenInfo
+	resetTokens map[string]passwordResetToken
+	failures    map[string]failedLogin
+}
+
+type passwordResetToken struct {
+	Username  string
+	ExpiresAt time.Time
+}
+
+type failedLogin struct {
+	Count       int
+	LastAttempt time.Time
+	LockedUntil time.Time
 }
 
 func NewAuthService(users UserRepository, sessions SessionRepository) AuthService {
-	return &authService{users: users, sessions: sessions, resetTokens: make(map[string]resetTokenInfo)}
+	return &authService{
+		users:       users,
+		sessions:    sessions,
+		resetTokens: make(map[string]passwordResetToken),
+		failures:    make(map[string]failedLogin),
+	}
 }
 
 // DefaultAuth is the package-level auth service used by the app.
@@ -82,8 +87,8 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("username must be at least 3 characters")
 	}
 
-	if err := validatePasswordPolicy(password); err != nil {
-		return err
+	if !isStrongPassword(password) {
+		return errors.New("password must be at least 8 characters and include upper, lower, digit, and symbol")
 	}
 
 	if !isValidEmail(email) {
@@ -98,12 +103,10 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("email already registered")
 	}
 
-	salt := generateSalt()
 	return s.users.Add(&User{
 		Username:     username,
 		Email:        email,
-		PasswordHash: hashPassword(password, salt),
-		PasswordSalt: salt,
+		PasswordHash: hashPassword(password),
 		Profile: &UserProfile{
 			Username: username,
 			Email:    email,
@@ -117,33 +120,24 @@ func (s *authService) Login(username, password string) (string, error) {
 		return "", errors.New("username and password are required")
 	}
 
+	if s.isAccountLocked(username) {
+		return "", errors.New("account temporarily locked due to failed login attempts")
+	}
+
 	user, exists := s.users.Get(username)
-	if !exists {
+	if !exists || !verifyPassword(password, user.PasswordHash) {
+		s.recordFailedLogin(username)
 		return "", errors.New("invalid username or password")
 	}
 
-	if user.LockoutUntil.After(time.Now()) {
-		return "", errors.New("account locked due to repeated failed login attempts")
-	}
-
-	if !verifyPassword(password, user.PasswordSalt, user.PasswordHash) {
-		user.FailedLoginAttempts++
-		if user.FailedLoginAttempts >= maxFailedLoginAttempts {
-			user.LockoutUntil = time.Now().Add(accountLockoutDuration)
-			return "", errors.New("account locked due to repeated failed login attempts")
-		}
-		return "", errors.New("invalid username or password")
-	}
-
-	user.FailedLoginAttempts = 0
-	user.LockoutUntil = time.Time{}
+	s.clearFailedLogin(username)
 
 	sessionID := generateSessionID(username)
 	s.sessions.Create(&Session{
 		Username:  username,
 		SessionID: sessionID,
-		ExpiresAt: time.Now().Add(sessionExpiryDuration),
 		IsActive:  true,
+		ExpiresAt: time.Now().Add(30 * time.Minute),
 	})
 
 	return sessionID, nil
@@ -171,13 +165,37 @@ func (s *authService) ValidateSession(sessionID string) (string, error) {
 	}
 
 	if time.Now().After(session.ExpiresAt) {
-		sessions := s.sessions
-		session.IsActive = false
-		sessions.Remove(sessionID)
-		return "", errors.New("session has expired")
+		s.sessions.Remove(sessionID)
+		return "", errors.New("session expired")
 	}
 
 	return session.Username, nil
+}
+
+func (s *authService) isAccountLocked(username string) bool {
+	failure, exists := s.failures[username]
+	if !exists {
+		return false
+	}
+	return time.Now().Before(failure.LockedUntil)
+}
+
+func (s *authService) recordFailedLogin(username string) {
+	failure := s.failures[username]
+	now := time.Now()
+	if now.Sub(failure.LastAttempt) > 15*time.Minute {
+		failure.Count = 0
+	}
+	failure.Count++
+	failure.LastAttempt = now
+	if failure.Count >= 5 {
+		failure.LockedUntil = now.Add(15 * time.Minute)
+	}
+	s.failures[username] = failure
+}
+
+func (s *authService) clearFailedLogin(username string) {
+	delete(s.failures, username)
 }
 
 func (s *authService) GetUserInfo(sessionID string) (*User, error) {
@@ -205,17 +223,15 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 		return errors.New("user not found")
 	}
 
-	if !verifyPassword(oldPassword, user.PasswordSalt, user.PasswordHash) {
+	if !verifyPassword(oldPassword, user.PasswordHash) {
 		return errors.New("current password is incorrect")
 	}
 
-	if err := validatePasswordPolicy(newPassword); err != nil {
-		return err
+	if !isStrongPassword(newPassword) {
+		return errors.New("new password must be at least 6 characters")
 	}
 
-	salt := generateSalt()
-	user.PasswordSalt = salt
-	user.PasswordHash = hashPassword(newPassword, salt)
+	user.PasswordHash = hashPassword(newPassword)
 	return nil
 }
 
@@ -224,37 +240,32 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 	if !exists {
 		return "", errors.New("email not found")
 	}
-	token := generateSecureToken()
-	s.resetTokens[token] = resetTokenInfo{
-		username:  user.Username,
-		expiresAt: time.Now().Add(resetTokenExpiryDuration),
-	}
+	token := generateSessionID(user.Username)
+	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: time.Now().Add(1 * time.Hour)}
 	return token, nil
 }
 
 func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
-	info, exists := s.resetTokens[token]
+	reset, exists := s.resetTokens[token]
 	if !exists {
 		return errors.New("invalid token")
 	}
 
-	if time.Now().After(info.expiresAt) {
+	if time.Now().After(reset.ExpiresAt) {
 		delete(s.resetTokens, token)
-		return errors.New("token has expired")
+		return errors.New("reset token expired")
 	}
 
-	if err := validatePasswordPolicy(newPassword); err != nil {
-		return err
+	if !isStrongPassword(newPassword) {
+		return errors.New("new password must be at least 8 characters and include upper, lower, digit, and symbol")
 	}
 
-	user, exists := s.users.Get(info.username)
+	user, exists := s.users.Get(reset.Username)
 	if !exists {
 		return errors.New("user not found")
 	}
 
-	salt := generateSalt()
-	user.PasswordSalt = salt
-	user.PasswordHash = hashPassword(newPassword, salt)
+	user.PasswordHash = hashPassword(newPassword)
 	delete(s.resetTokens, token)
 	return nil
 }
