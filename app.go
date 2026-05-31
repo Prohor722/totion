@@ -24,51 +24,54 @@ func (a *App) RunDemo() {
 	fmt.Println()
 
 	fmt.Println("1. Registering users...")
-	if msg := a.auth.RegisterUser("john_doe", "john@example.com", "password123"); msg != "" {
-		fmt.Println(msg)
+	if err := a.auth.RegisterUser("john_doe", "john@example.com", "password123"); err != nil {
+		fmt.Println("Register error:", err)
 	}
-	if msg := a.auth.RegisterUser("jane_smith", "jane@example.com", "securePass456"); msg != "" {
-		fmt.Println(msg)
+	if err := a.auth.RegisterUser("jane_smith", "jane@example.com", "securePass456"); err != nil {
+		fmt.Println("Register error:", err)
 	}
 
-	fmt.Println(a.auth.RegisterUser("ab", "invalid@email.com", "short"))
+	if err := a.auth.RegisterUser("ab", "invalid@email.com", "short"); err != nil {
+		fmt.Println("Register error:", err)
+	}
 
 	fmt.Println("2. Login attempt...")
-	sessionID, errMsg := a.auth.LoginUser("john_doe", "password123")
-	if errMsg != "" {
-		fmt.Println("Login error:", errMsg)
+	sessionID, err := a.auth.LoginUser("john_doe", "password123")
+	if err != nil {
+		fmt.Println("Login error:", err)
 	} else {
 		fmt.Printf("Session ID: %s\n", sessionID)
 
 		fmt.Println("3. Validating session...")
-		if valid, username := a.userManager.ValidateSession(sessionID); valid {
+		username, err := a.userManager.ValidateSession(sessionID)
+		if err == nil {
 			fmt.Printf("✓ Session is valid for user: %s\n", username)
 		}
 
 		fmt.Println("4. Retrieving user info...")
-		user, msg := a.userManager.GetUserInfo(sessionID)
-		if msg != "" {
-			fmt.Println(msg)
+		user, err := a.userManager.GetUserInfo(sessionID)
+		if err != nil {
+			fmt.Println("Error:", err)
 		} else {
 			fmt.Printf("Username: %s, Email: %s\n", user.Username, user.Email)
 		}
 
 		fmt.Println("5. Changing password...")
-		if msg := a.userManager.ChangePassword(sessionID, "password123", "newPassword789"); msg != "" {
-			fmt.Println(msg)
+		if err := a.userManager.ChangePassword(sessionID, "password123", "newPassword789"); err != nil {
+			fmt.Println("Error:", err)
 		} else {
 			fmt.Println("✓ Password changed successfully")
 		}
 
 		fmt.Println("6. Logging out...")
-		if msg := a.auth.LogoutUser(sessionID); msg != "" {
-			fmt.Println(msg)
+		if err := a.auth.LogoutUser(sessionID); err != nil {
+			fmt.Println("Error:", err)
 		} else {
 			fmt.Println("✓ Logged out successfully")
 		}
 
 		fmt.Println("7. Verifying session after logout...")
-		if valid, _ := a.userManager.ValidateSession(sessionID); !valid {
+		if _, err := a.userManager.ValidateSession(sessionID); err != nil {
 			fmt.Println("✓ Session correctly invalidated")
 		}
 	}
