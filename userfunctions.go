@@ -1,9 +1,6 @@
 package main
 
-import (
-	"errors"
-	"fmt"
-)
+import "errors"
 
 // UserManager defines operations for managing user accounts and sessions.
 // This interface follows Interface Segregation Principle - clients depend on specific operations.
