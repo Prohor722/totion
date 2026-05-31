@@ -7,11 +7,11 @@ import (
 // UserManager defines operations for managing user accounts and sessions.
 // This interface follows Interface Segregation Principle - clients depend on specific operations.
 type UserManager interface {
-	ValidateSession(sessionID string) (bool, string)
-	GetUserInfo(sessionID string) (*User, string)
+	ValidateSession(sessionID string) (string, error)
+	GetUserInfo(sessionID string) (*User, error)
 	ListAllUsers() []string
-	DeleteUser(username string) string
-	ChangePassword(sessionID, oldPassword, newPassword string) string
+	DeleteUser(username string) error
+	ChangePassword(sessionID, oldPassword, newPassword string) error
 }
 
 // defaultUserManager implements UserManager by delegating to an AuthService.
@@ -26,26 +26,17 @@ func NewDefaultUserManager(auth AuthService) UserManager {
 }
 
 // ValidateSession checks if a sessionID corresponds to an active session.
-func (m *defaultUserManager) ValidateSession(sessionID string) (bool, string) {
+func (m *defaultUserManager) ValidateSession(sessionID string) (string, error) {
 	if sessionID == "" {
-		return false, ""
+		return "", errors.New("session ID is required")
 	}
 
-	username, err := m.auth.ValidateSession(sessionID)
-	if err != nil {
-		return false, ""
-	}
-
-	return true, username
+	return m.auth.ValidateSession(sessionID)
 }
 
 // GetUserInfo retrieves user information (requires active session).
-func (m *defaultUserManager) GetUserInfo(sessionID string) (*User, string) {
-	user, err := m.auth.GetUserInfo(sessionID)
-	if err != nil {
-		return nil, "Error: " + err.Error()
-	}
-	return user, ""
+func (m *defaultUserManager) GetUserInfo(sessionID string) (*User, error) {
+	return m.auth.GetUserInfo(sessionID)
 }
 
 // ListAllUsers returns all registered users (for admin purposes).
@@ -55,22 +46,14 @@ func (m *defaultUserManager) ListAllUsers() []string {
 
 // DeleteUser removes a user from the system.
 // This method is responsible for user deletion only - Single Responsibility Principle.
-func (m *defaultUserManager) DeleteUser(username string) string {
-	if err := m.auth.DeleteUser(username); err != nil {
-		return "Error: " + err.Error()
-	}
-	fmt.Printf("✓ User '%s' deleted successfully\n", username)
-	return ""
+func (m *defaultUserManager) DeleteUser(username string) error {
+	return m.auth.DeleteUser(username)
 }
 
 // ChangePassword allows a user to change their password (requires valid session).
 // This method is responsible for password changes only - Single Responsibility Principle.
-func (m *defaultUserManager) ChangePassword(sessionID, oldPassword, newPassword string) string {
-	if err := m.auth.ChangePassword(sessionID, oldPassword, newPassword); err != nil {
-		return "Error: " + err.Error()
-	}
-	fmt.Printf("✓ Password changed successfully for session '%s'\n", sessionID)
-	return ""
+func (m *defaultUserManager) ChangePassword(sessionID, oldPassword, newPassword string) error {
+	return m.auth.ChangePassword(sessionID, oldPassword, newPassword)
 }
 
 // Legacy package-level functions that use the default global UserManager.
