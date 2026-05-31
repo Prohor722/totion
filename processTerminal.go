@@ -70,7 +70,10 @@ func (c *registerCommand) Execute(args []string) string {
 	if len(args) != 4 {
 		return "Usage: register <username> <email> <password>"
 	}
-	return c.users.Register(args[1], args[2], args[3])
+	if err := c.users.Register(args[1], args[2], args[3]); err != nil {
+		return "Error: " + err.Error()
+	}
+	return "Registered successfully"
 }
 
 type loginCommand struct{ sessions SessionService }
