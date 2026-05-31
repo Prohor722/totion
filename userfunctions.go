@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -63,12 +64,12 @@ func (m *defaultUserManager) ChangePassword(sessionID, oldPassword, newPassword 
 var userManager UserManager = NewDefaultUserManager(DefaultAuth)
 
 // ValidateSession checks if a sessionID corresponds to an active session.
-func ValidateSession(sessionID string) (bool, string) {
+func ValidateSession(sessionID string) (string, error) {
 	return userManager.ValidateSession(sessionID)
 }
 
 // GetUserInfo retrieves user information (requires active session)
-func GetUserInfo(sessionID string) (*User, string) {
+func GetUserInfo(sessionID string) (*User, error) {
 	return userManager.GetUserInfo(sessionID)
 }
 
@@ -78,11 +79,11 @@ func ListAllUsers() []string {
 }
 
 // DeleteUser removes a user from the system
-func DeleteUser(username string) string {
+func DeleteUser(username string) error {
 	return userManager.DeleteUser(username)
 }
 
 // ChangePassword allows a user to change their password (requires valid session)
-func ChangePassword(sessionID, oldPassword, newPassword string) string {
+func ChangePassword(sessionID, oldPassword, newPassword string) error {
 	return userManager.ChangePassword(sessionID, oldPassword, newPassword)
 }
