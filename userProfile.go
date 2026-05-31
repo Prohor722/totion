@@ -111,11 +111,11 @@ func (m *defaultProfileManager) UpdateUserProfile(username, email, bio string) e
 var profileManager ProfileManager = NewDefaultProfileManager(DefaultProfileService)
 
 // GetUserProfile retrieves a user's profile by username.
-func GetUserProfile(username string) (*UserProfile, string) {
+func GetUserProfile(username string) (*UserProfile, error) {
 	return profileManager.GetUserProfile(username)
 }
 
 // UpdateUserProfile updates a user's profile information.
-func UpdateUserProfile(username, email, bio string) string {
+func UpdateUserProfile(username, email, bio string) error {
 	return profileManager.UpdateUserProfile(username, email, bio)
 }
