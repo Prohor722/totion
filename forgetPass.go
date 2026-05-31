@@ -6,8 +6,8 @@ import (
 
 // ForgetPasswordService defines operations for password reset
 type ForgetPasswordService interface {
-	RequestReset(email string) string
-	ResetPassword(token, newPassword string) string
+	RequestReset(email string) (string, error)
+	ResetPassword(token, newPassword string) error
 }
 
 type forgetPasswordService struct {
@@ -18,19 +18,10 @@ func NewForgetPasswordService(auth AuthService) ForgetPasswordService {
 	return &forgetPasswordService{auth: auth}
 }
 
-func (s *forgetPasswordService) RequestReset(email string) string {
-	token, err := s.auth.CreatePasswordResetToken(email)
-	if err != nil {
-		return "Error: " + err.Error()
-	}
-	fmt.Printf("✓ Password reset requested for '%s'. (Token: %s)\n", email, token)
-	return ""
+func (s *forgetPasswordService) RequestReset(email string) (string, error) {
+	return s.auth.CreatePasswordResetToken(email)
 }
 
-func (s *forgetPasswordService) ResetPassword(token, newPassword string) string {
-	if err := s.auth.ResetPasswordWithToken(token, newPassword); err != nil {
-		return "Error: " + err.Error()
-	}
-	fmt.Println("✓ Password reset successfully")
-	return ""
+func (s *forgetPasswordService) ResetPassword(token, newPassword string) error {
+	return s.auth.ResetPasswordWithToken(token, newPassword)
 }
