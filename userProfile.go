@@ -77,8 +77,8 @@ func (s *profileService) UpdateProfile(username, email, bio string) error {
 // ProfileManager defines high-level profile management operations.
 // This interface follows Interface Segregation Principle - clients depend on specific operations.
 type ProfileManager interface {
-	GetUserProfile(username string) (*UserProfile, string)
-	UpdateUserProfile(username, email, bio string) string
+	GetUserProfile(username string) (*UserProfile, error)
+	UpdateUserProfile(username, email, bio string) error
 }
 
 // defaultProfileManager implements ProfileManager by delegating to ProfileService.
@@ -94,21 +94,14 @@ func NewDefaultProfileManager(service ProfileService) ProfileManager {
 
 // GetUserProfile retrieves a user's profile by username.
 // This method is responsible for profile retrieval only - Single Responsibility Principle.
-func (m *defaultProfileManager) GetUserProfile(username string) (*UserProfile, string) {
-	profile, err := m.service.GetProfile(username)
-	if err != nil {
-		return nil, "Error: " + err.Error()
-	}
-	return profile, ""
+func (m *defaultProfileManager) GetUserProfile(username string) (*UserProfile, error) {
+	return m.service.GetProfile(username)
 }
 
 // UpdateUserProfile updates a user's profile information.
 // This method is responsible for profile updates only - Single Responsibility Principle.
-func (m *defaultProfileManager) UpdateUserProfile(username, email, bio string) string {
-	if err := m.service.UpdateProfile(username, email, bio); err != nil {
-		return "Error: " + err.Error()
-	}
-	return ""
+func (m *defaultProfileManager) UpdateUserProfile(username, email, bio string) error {
+	return m.service.UpdateProfile(username, email, bio)
 }
 
 // Legacy package-level functions that use the default global ProfileManager.
