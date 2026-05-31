@@ -14,73 +14,53 @@ type Command interface {
 
 // UserService defines user-related operations used by commands
 type UserService interface {
-	Register(username, email, password string) string
+	Register(username, email, password string) error
 	ListAll() []string
-	Delete(username string) string
-	ChangePassword(sessionID, oldPassword, newPassword string) string
-	GetInfo(sessionID string) (*User, string)
+	Delete(username string) error
+	ChangePassword(sessionID, oldPassword, newPassword string) error
+	GetInfo(sessionID string) (*User, error)
 }
 
 // SessionService defines session-related operations used by commands
 type SessionService interface {
-	Login(username, password string) (string, string)
-	Logout(sessionID string) string
+	Login(username, password string) (string, error)
+	Logout(sessionID string) error
 }
 
 type authUserService struct {
 	auth AuthService
 }
 
-func (d *authUserService) Register(u, e, p string) string {
-	if err := d.auth.Register(u, e, p); err != nil {
-		return "Error: " + err.Error()
-	}
-	return ""
+func (d *authUserService) Register(u, e, p string) error {
+	return d.auth.Register(u, e, p)
 }
 
 func (d *authUserService) ListAll() []string {
 	return d.auth.ListUsernames()
 }
 
-func (d *authUserService) Delete(u string) string {
-	if err := d.auth.DeleteUser(u); err != nil {
-		return "Error: " + err.Error()
-	}
-	return ""
+func (d *authUserService) Delete(u string) error {
+	return d.auth.DeleteUser(u)
 }
 
-func (d *authUserService) ChangePassword(s, o, n string) string {
-	if err := d.auth.ChangePassword(s, o, n); err != nil {
-		return "Error: " + err.Error()
-	}
-	return ""
+func (d *authUserService) ChangePassword(s, o, n string) error {
+	return d.auth.ChangePassword(s, o, n)
 }
 
-func (d *authUserService) GetInfo(sessionID string) (*User, string) {
-	user, err := d.auth.GetUserInfo(sessionID)
-	if err != nil {
-		return nil, "Error: " + err.Error()
-	}
-	return user, ""
+func (d *authUserService) GetInfo(sessionID string) (*User, error) {
+	return d.auth.GetUserInfo(sessionID)
 }
 
 type authSessionService struct {
 	auth AuthService
 }
 
-func (d *authSessionService) Login(u, p string) (string, string) {
-	sid, err := d.auth.Login(u, p)
-	if err != nil {
-		return "", "Error: " + err.Error()
-	}
-	return sid, ""
+func (d *authSessionService) Login(u, p string) (string, error) {
+	return d.auth.Login(u, p)
 }
 
-func (d *authSessionService) Logout(s string) string {
-	if err := d.auth.Logout(s); err != nil {
-		return "Error: " + err.Error()
-	}
-	return ""
+func (d *authSessionService) Logout(s string) error {
+	return d.auth.Logout(s)
 }
 
 // Concrete command implementations
@@ -100,8 +80,8 @@ func (c *loginCommand) Execute(args []string) string {
 		return "Usage: login <username> <password>"
 	}
 	sessionID, err := c.sessions.Login(args[1], args[2])
-	if err != "" {
-		return err
+	if err != nil {
+		return "Error: " + err.Error()
 	}
 	return fmt.Sprintf("Logged in successfully. Session ID: %s", sessionID)
 }
@@ -112,7 +92,10 @@ func (c *logoutCommand) Execute(args []string) string {
 	if len(args) != 2 {
 		return "Usage: logout <sessionID>"
 	}
-	return c.sessions.Logout(args[1])
+	if err := c.sessions.Logout(args[1]); err != nil {
+		return "Error: " + err.Error()
+	}
+	return "Logged out successfully"
 }
 
 type infoCommand struct{ users UserService }
@@ -122,8 +105,8 @@ func (c *infoCommand) Execute(args []string) string {
 		return "Usage: info <sessionID>"
 	}
 	user, err := c.users.GetInfo(args[1])
-	if err != "" {
-		return err
+	if err != nil {
+		return "Error: " + err.Error()
 	}
 	if user == nil {
 		return "Error: User not found"
@@ -154,7 +137,10 @@ func (c *deleteCommand) Execute(args []string) string {
 	if len(args) != 2 {
 		return "Usage: delete <username>"
 	}
-	return c.users.Delete(args[1])
+	if err := c.users.Delete(args[1]); err != nil {
+		return "Error: " + err.Error()
+	}
+	return "User deleted successfully"
 }
 
 type changePasswordCommand struct{ users UserService }
@@ -163,7 +149,10 @@ func (c *changePasswordCommand) Execute(args []string) string {
 	if len(args) != 4 {
 		return "Usage: changepassword <sessionID> <oldPassword> <newPassword>"
 	}
-	return c.users.ChangePassword(args[1], args[2], args[3])
+	if err := c.users.ChangePassword(args[1], args[2], args[3]); err != nil {
+		return "Error: " + err.Error()
+	}
+	return "Password changed successfully"
 }
 
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
