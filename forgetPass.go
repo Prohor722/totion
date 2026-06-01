@@ -1,6 +1,5 @@
 package main
 
-
 // ForgetPasswordService defines operations for password reset
 type ForgetPasswordService interface {
 	RequestReset(email string) (string, error)
