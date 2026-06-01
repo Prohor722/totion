@@ -12,15 +12,21 @@ type UserManager interface {
 	ChangePassword(sessionID, oldPassword, newPassword string) error
 }
 
-// defaultUserManager implements UserManager by delegating to an AuthService.
-// This follows Dependency Inversion Principle - concrete implementation depends on abstraction.
+// defaultUserManager implements UserManager by delegating to focused auth abstractions.
+// This follows Dependency Inversion Principle - concrete implementation depends on small interfaces.
 type defaultUserManager struct {
-	auth AuthService
+	session SessionValidationService
+	account RegistrationService
+	password PasswordService
 }
 
 // NewDefaultUserManager creates a new UserManager with the given AuthService.
 func NewDefaultUserManager(auth AuthService) UserManager {
-	return &defaultUserManager{auth: auth}
+	return &defaultUserManager{
+		session: auth,
+		account: auth,
+		password: auth,
+	}
 }
 
 // ValidateSession checks if a sessionID corresponds to an active session.
@@ -29,29 +35,29 @@ func (m *defaultUserManager) ValidateSession(sessionID string) (string, error) {
 		return "", errors.New("session ID is required")
 	}
 
-	return m.auth.ValidateSession(sessionID)
+	return m.session.ValidateSession(sessionID)
 }
 
 // GetUserInfo retrieves user information (requires active session).
 func (m *defaultUserManager) GetUserInfo(sessionID string) (*User, error) {
-	return m.auth.GetUserInfo(sessionID)
+	return m.session.GetUserInfo(sessionID)
 }
 
 // ListAllUsers returns all registered users (for admin purposes).
 func (m *defaultUserManager) ListAllUsers() []string {
-	return m.auth.ListUsernames()
+	return m.account.ListUsernames()
 }
 
 // DeleteUser removes a user from the system.
 // This method is responsible for user deletion only - Single Responsibility Principle.
 func (m *defaultUserManager) DeleteUser(username string) error {
-	return m.auth.DeleteUser(username)
+	return m.account.DeleteUser(username)
 }
 
 // ChangePassword allows a user to change their password (requires valid session).
 // This method is responsible for password changes only - Single Responsibility Principle.
 func (m *defaultUserManager) ChangePassword(sessionID, oldPassword, newPassword string) error {
-	return m.auth.ChangePassword(sessionID, oldPassword, newPassword)
+	return m.password.ChangePassword(sessionID, oldPassword, newPassword)
 }
 
 // Legacy package-level functions that use the default global UserManager.
