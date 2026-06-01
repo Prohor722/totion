@@ -15,16 +15,16 @@ type UserManager interface {
 // defaultUserManager implements UserManager by delegating to focused auth abstractions.
 // This follows Dependency Inversion Principle - concrete implementation depends on small interfaces.
 type defaultUserManager struct {
-	session SessionValidationService
-	account RegistrationService
+	session  SessionValidationService
+	account  RegistrationService
 	password PasswordService
 }
 
 // NewDefaultUserManager creates a new UserManager with the given AuthService.
 func NewDefaultUserManager(auth AuthService) UserManager {
 	return &defaultUserManager{
-		session: auth,
-		account: auth,
+		session:  auth,
+		account:  auth,
 		password: auth,
 	}
 }
