@@ -7,17 +7,17 @@ type ForgetPasswordService interface {
 }
 
 type forgetPasswordService struct {
-	auth AuthService
+	password PasswordService
 }
 
-func NewForgetPasswordService(auth AuthService) ForgetPasswordService {
-	return &forgetPasswordService{auth: auth}
+func NewForgetPasswordService(auth PasswordService) ForgetPasswordService {
+	return &forgetPasswordService{password: auth}
 }
 
 func (s *forgetPasswordService) RequestReset(email string) (string, error) {
-	return s.auth.CreatePasswordResetToken(email)
+	return s.password.CreatePasswordResetToken(email)
 }
 
 func (s *forgetPasswordService) ResetPassword(token, newPassword string) error {
-	return s.auth.ResetPasswordWithToken(token, newPassword)
+	return s.password.ResetPasswordWithToken(token, newPassword)
 }
