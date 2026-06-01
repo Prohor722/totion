@@ -35,17 +35,33 @@ func (r *InMemorySessionRepository) Remove(sessionID string) {
 	delete(r.sessions, sessionID)
 }
 
-type AuthService interface {
+type RegistrationService interface {
 	Register(username, email, password string) error
+	DeleteUser(username string) error
+	ListUsernames() []string
+}
+
+type CredentialService interface {
 	Login(username, password string) (string, error)
 	Logout(sessionID string) error
+}
+
+type SessionValidationService interface {
 	ValidateSession(sessionID string) (string, error)
 	GetUserInfo(sessionID string) (*User, error)
+}
+
+type PasswordService interface {
 	ChangePassword(sessionID, oldPassword, newPassword string) error
 	CreatePasswordResetToken(email string) (string, error)
 	ResetPasswordWithToken(token, newPassword string) error
-	ListUsernames() []string
-	DeleteUser(username string) error
+}
+
+type AuthService interface {
+	RegistrationService
+	CredentialService
+	SessionValidationService
+	PasswordService
 }
 
 type authService struct {
@@ -228,7 +244,7 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 	}
 
 	if !isStrongPassword(newPassword) {
-		return errors.New("new password must be at least 6 characters")
+		return errors.New("new password must be at least 8 characters and include upper, lower, digit, and symbol")
 	}
 
 	user.PasswordHash = hashPassword(newPassword)

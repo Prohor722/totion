@@ -8,33 +8,37 @@ type AuthManager interface {
 	LogoutUser(sessionID string) error
 }
 
-// defaultAuthManager implements AuthManager by delegating to an AuthService.
-// This follows Dependency Inversion Principle - concrete implementation depends on abstraction.
+// defaultAuthManager implements AuthManager by delegating to focused auth abstractions.
+// This follows Dependency Inversion Principle - concrete implementation depends on small interfaces.
 type defaultAuthManager struct {
-	auth AuthService
+	registration RegistrationService
+	credentials  CredentialService
 }
 
 // NewDefaultAuthManager creates a new AuthManager with the given AuthService.
 func NewDefaultAuthManager(auth AuthService) AuthManager {
-	return &defaultAuthManager{auth: auth}
+	return &defaultAuthManager{
+		registration: auth,
+		credentials:  auth,
+	}
 }
 
 // RegisterUser creates a new user account.
 // This method is responsible for user registration only - Single Responsibility Principle.
 func (m *defaultAuthManager) RegisterUser(username, email, password string) error {
-	return m.auth.Register(username, email, password)
+	return m.registration.Register(username, email, password)
 }
 
 // LoginUser authenticates a user and creates a session.
 // This method is responsible for login only - Single Responsibility Principle.
 func (m *defaultAuthManager) LoginUser(username, password string) (string, error) {
-	return m.auth.Login(username, password)
+	return m.credentials.Login(username, password)
 }
 
 // LogoutUser terminates a user session.
 // This method is responsible for logout only - Single Responsibility Principle.
 func (m *defaultAuthManager) LogoutUser(sessionID string) error {
-	return m.auth.Logout(sessionID)
+	return m.credentials.Logout(sessionID)
 }
 
 // Legacy package-level functions that use the default global AuthManager.
