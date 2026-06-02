@@ -15,11 +15,11 @@ type defaultAuthManager struct {
 	credentials  CredentialService
 }
 
-// NewDefaultAuthManager creates a new AuthManager with the given AuthService.
-func NewDefaultAuthManager(auth AuthService) AuthManager {
+// NewDefaultAuthManager creates a new AuthManager with focused auth abstractions.
+func NewDefaultAuthManager(reg RegistrationService, cred CredentialService) AuthManager {
 	return &defaultAuthManager{
-		registration: auth,
-		credentials:  auth,
+		registration: reg,
+		credentials:  cred,
 	}
 }
 
@@ -45,7 +45,7 @@ func (m *defaultAuthManager) LogoutUser(sessionID string) error {
 // These maintain backwards compatibility with existing code.
 
 // authManager is the default global instance.
-var authManager AuthManager = NewDefaultAuthManager(DefaultAuth)
+var authManager AuthManager = NewDefaultAuthManager(DefaultAuth, DefaultAuth)
 
 // RegisterUser creates a new user account using the auth service.
 func RegisterUser(username, email, password string) error {

@@ -9,13 +9,22 @@ type App struct {
 	resetService   ForgetPasswordService
 }
 
-func NewApp(authService AuthService, userRepo UserRepository) *App {
+func NewApp(auth AuthManager, userManager UserManager, profileManager ProfileManager, resetService ForgetPasswordService) *App {
 	return &App{
-		auth:           NewDefaultAuthManager(authService),
-		userManager:    NewDefaultUserManager(authService),
-		profileManager: NewDefaultProfileManager(NewProfileService(userRepo)),
-		resetService:   NewForgetPasswordService(authService),
+		auth:           auth,
+		userManager:    userManager,
+		profileManager: profileManager,
+		resetService:   resetService,
 	}
+}
+
+func NewAppWithAuth(authService AuthService, userRepo UserRepository) *App {
+	return NewApp(
+		NewDefaultAuthManager(authService, authService),
+		NewDefaultUserManager(authService, authService, authService),
+		NewDefaultProfileManager(NewProfileService(userRepo)),
+		NewForgetPasswordService(authService),
+	)
 }
 
 func (a *App) RunDemo() {

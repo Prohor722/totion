@@ -64,7 +64,7 @@ func (m *defaultUserManager) ChangePassword(sessionID, oldPassword, newPassword 
 // These maintain backwards compatibility with existing code.
 
 // userManager is the default global instance.
-var userManager UserManager = NewDefaultUserManager(DefaultAuth)
+var userManager UserManager = NewDefaultUserManager(DefaultAuth, DefaultAuth, DefaultAuth)
 
 // ValidateSession checks if a sessionID corresponds to an active session.
 func ValidateSession(sessionID string) (string, error) {

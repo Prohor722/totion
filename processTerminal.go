@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -76,14 +77,14 @@ func (d *authSessionService) Logout(s string) error {
 // Concrete command implementations
 type registerCommand struct{ users UserService }
 
-func (c *registerCommand) Execute(args []string) string {
+func (c *registerCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 {
-		return "Usage: register <username> <email> <password>"
+		return "", errors.New("Usage: register <username> <email> <password>")
 	}
 	if err := c.users.Register(args[1], args[2], args[3]); err != nil {
-		return "Error: " + err.Error()
+		return "", err
 	}
-	return "Registered successfully"
+	return "Registered successfully", nil
 }
 
 type loginCommand struct{ sessions SessionService }
