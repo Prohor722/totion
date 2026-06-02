@@ -20,12 +20,12 @@ type defaultUserManager struct {
 	password PasswordService
 }
 
-// NewDefaultUserManager creates a new UserManager with the given AuthService.
-func NewDefaultUserManager(auth AuthService) UserManager {
+// NewDefaultUserManager creates a new UserManager with focused auth abstractions.
+func NewDefaultUserManager(session SessionValidationService, account RegistrationService, password PasswordService) UserManager {
 	return &defaultUserManager{
-		session:  auth,
-		account:  auth,
-		password: auth,
+		session:  session,
+		account:  account,
+		password: password,
 	}
 }
 

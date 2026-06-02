@@ -9,7 +9,7 @@ import (
 
 // Command represents a terminal action
 type Command interface {
-	Execute(args []string) string
+	Execute(args []string) (string, error)
 }
 
 // UserService defines user-related operations used by commands
@@ -28,39 +28,49 @@ type SessionService interface {
 }
 
 type authUserService struct {
-	auth AuthService
+	account  RegistrationService
+	password PasswordService
+	session  SessionValidationService
+}
+
+func NewTerminalUserService(account RegistrationService, password PasswordService, session SessionValidationService) UserService {
+	return &authUserService{account: account, password: password, session: session}
 }
 
 func (d *authUserService) Register(u, e, p string) error {
-	return d.auth.Register(u, e, p)
+	return d.account.Register(u, e, p)
 }
 
 func (d *authUserService) ListAll() []string {
-	return d.auth.ListUsernames()
+	return d.account.ListUsernames()
 }
 
 func (d *authUserService) Delete(u string) error {
-	return d.auth.DeleteUser(u)
+	return d.account.DeleteUser(u)
 }
 
 func (d *authUserService) ChangePassword(s, o, n string) error {
-	return d.auth.ChangePassword(s, o, n)
+	return d.password.ChangePassword(s, o, n)
 }
 
 func (d *authUserService) GetInfo(sessionID string) (*User, error) {
-	return d.auth.GetUserInfo(sessionID)
+	return d.session.GetUserInfo(sessionID)
 }
 
 type authSessionService struct {
-	auth AuthService
+	credentials CredentialService
+}
+
+func NewTerminalSessionService(credentials CredentialService) SessionService {
+	return &authSessionService{credentials: credentials}
 }
 
 func (d *authSessionService) Login(u, p string) (string, error) {
-	return d.auth.Login(u, p)
+	return d.credentials.Login(u, p)
 }
 
 func (d *authSessionService) Logout(s string) error {
-	return d.auth.Logout(s)
+	return d.credentials.Logout(s)
 }
 
 // Concrete command implementations
@@ -78,51 +88,47 @@ func (c *registerCommand) Execute(args []string) string {
 
 type loginCommand struct{ sessions SessionService }
 
-func (c *loginCommand) Execute(args []string) string {
+func (c *loginCommand) Execute(args []string) (string, error) {
 	if len(args) != 3 {
-		return "Usage: login <username> <password>"
+		return "", errors.New("Usage: login <username> <password>")
 	}
-	sessionID, err := c.sessions.Login(args[1], args[2])
-	if err != nil {
-		return "Error: " + err.Error()
-	}
-	return fmt.Sprintf("Logged in successfully. Session ID: %s", sessionID)
+	return c.sessions.Login(args[1], args[2])
 }
 
 type logoutCommand struct{ sessions SessionService }
 
-func (c *logoutCommand) Execute(args []string) string {
+func (c *logoutCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
-		return "Usage: logout <sessionID>"
+		return "", errors.New("Usage: logout <sessionID>")
 	}
 	if err := c.sessions.Logout(args[1]); err != nil {
-		return "Error: " + err.Error()
+		return "", err
 	}
-	return "Logged out successfully"
+	return "Logged out successfully", nil
 }
 
 type infoCommand struct{ users UserService }
 
-func (c *infoCommand) Execute(args []string) string {
+func (c *infoCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
-		return "Usage: info <sessionID>"
+		return "", errors.New("Usage: info <sessionID>")
 	}
 	user, err := c.users.GetInfo(args[1])
 	if err != nil {
-		return "Error: " + err.Error()
+		return "", err
 	}
 	if user == nil {
-		return "Error: User not found"
+		return "", errors.New("user not found")
 	}
-	return fmt.Sprintf("Username: %s, Email: %s", user.Username, user.Email)
+	return fmt.Sprintf("Username: %s, Email: %s", user.Username, user.Email), nil
 }
 
 type listCommand struct{ users UserService }
 
-func (c *listCommand) Execute(args []string) string {
+func (c *listCommand) Execute(args []string) (string, error) {
 	users := c.users.ListAll()
 	if len(users) == 0 {
-		return "No registered users."
+		return "No registered users.", nil
 	}
 	var b strings.Builder
 	b.WriteString("Registered users:\n")
@@ -131,51 +137,54 @@ func (c *listCommand) Execute(args []string) string {
 		b.WriteString(u)
 		b.WriteByte('\n')
 	}
-	return b.String()
+	return b.String(), nil
 }
 
 type deleteCommand struct{ users UserService }
 
-func (c *deleteCommand) Execute(args []string) string {
+func (c *deleteCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
-		return "Usage: delete <username>"
+		return "", errors.New("Usage: delete <username>")
 	}
 	if err := c.users.Delete(args[1]); err != nil {
-		return "Error: " + err.Error()
+		return "", err
 	}
-	return "User deleted successfully"
+	return "User deleted successfully", nil
 }
 
 type changePasswordCommand struct{ users UserService }
 
-func (c *changePasswordCommand) Execute(args []string) string {
+func (c *changePasswordCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 {
-		return "Usage: changepassword <sessionID> <oldPassword> <newPassword>"
+		return "", errors.New("Usage: changepassword <sessionID> <oldPassword> <newPassword>")
 	}
 	if err := c.users.ChangePassword(args[1], args[2], args[3]); err != nil {
-		return "Error: " + err.Error()
+		return "", err
 	}
-	return "Password changed successfully"
+	return "Password changed successfully", nil
 }
 
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
 func ProcessTerminalInputWithAuth(auth AuthService) {
+	ProcessTerminalInputWithServices(
+		NewTerminalUserService(auth, auth, auth),
+		NewTerminalSessionService(auth),
+	)
+}
+
+func ProcessTerminalInputWithServices(users UserService, sessions SessionService) {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Welcome to the User Management System")
 	fmt.Println("Available commands: register, login, logout, info, list, delete, changepassword, exit")
 
-	// build services and command registry (dependencies injected)
-	us := &authUserService{auth: auth}
-	ss := &authSessionService{auth: auth}
-
 	commands := map[string]Command{
-		"register":       &registerCommand{users: us},
-		"login":          &loginCommand{sessions: ss},
-		"logout":         &logoutCommand{sessions: ss},
-		"info":           &infoCommand{users: us},
-		"list":           &listCommand{users: us},
-		"delete":         &deleteCommand{users: us},
-		"changepassword": &changePasswordCommand{users: us},
+		"register":       &registerCommand{users: users},
+		"login":          &loginCommand{sessions: sessions},
+		"logout":         &logoutCommand{sessions: sessions},
+		"info":           &infoCommand{users: users},
+		"list":           &listCommand{users: users},
+		"delete":         &deleteCommand{users: users},
+		"changepassword": &changePasswordCommand{users: users},
 	}
 
 	for {
@@ -198,7 +207,11 @@ func ProcessTerminalInputWithAuth(auth AuthService) {
 			fmt.Println("Unknown command. Available commands: register, login, logout, info, list, delete, changepassword, exit")
 			continue
 		}
-		result := cmd.Execute(args)
+		result, err := cmd.Execute(args)
+		if err != nil {
+			fmt.Println("Error:", err)
+			continue
+		}
 		if result != "" {
 			fmt.Println(result)
 		}
