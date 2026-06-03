@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -153,7 +154,7 @@ func (s *authService) Login(username, password string) (string, error) {
 		Username:  username,
 		SessionID: sessionID,
 		IsActive:  true,
-		ExpiresAt: time.Now().Add(30 * time.Minute),
+		ExpiresAt: time.Now().Add(SessionTTL),
 	})
 
 	return sessionID, nil
@@ -244,7 +245,7 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 	}
 
 	if !isStrongPassword(newPassword) {
-		return errors.New("new password must be at least 8 characters and include upper, lower, digit, and symbol")
+		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
 	}
 
 	user.PasswordHash = hashPassword(newPassword)
@@ -273,7 +274,7 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 	}
 
 	if !isStrongPassword(newPassword) {
-		return errors.New("new password must be at least 8 characters and include upper, lower, digit, and symbol")
+		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
 	}
 
 	user, exists := s.users.Get(reset.Username)
