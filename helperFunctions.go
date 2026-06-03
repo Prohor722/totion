@@ -26,7 +26,7 @@ func verifyPassword(password, hash string) bool {
 }
 
 func isStrongPassword(password string) bool {
-	if len(password) < 8 {
+	if len(password) < MinPasswordLength {
 		return false
 	}
 	var hasUpper, hasLower, hasDigit, hasSymbol bool
