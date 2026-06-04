@@ -105,7 +105,7 @@ func (s *authService) Register(username, email, password string) error {
 	}
 
 	if !isStrongPassword(password) {
-		return errors.New("password must be at least 8 characters and include upper, lower, digit, and symbol")
+		return fmt.Errorf("password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
 	}
 
 	if !isValidEmail(email) {
@@ -205,8 +205,8 @@ func (s *authService) recordFailedLogin(username string) {
 	}
 	failure.Count++
 	failure.LastAttempt = now
-	if failure.Count >= MaxFailedLoginAttempts {
-		failure.LockedUntil = now.Add(LockoutDuration)
+	if failure.Count >= FailedLoginThreshold {
+		failure.LockedUntil = now.Add(AccountLockDuration)
 	}
 	s.failures[username] = failure
 }
