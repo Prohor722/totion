@@ -200,13 +200,13 @@ func (s *authService) isAccountLocked(username string) bool {
 func (s *authService) recordFailedLogin(username string) {
 	failure := s.failures[username]
 	now := time.Now()
-	if now.Sub(failure.LastAttempt) > 15*time.Minute {
+	if now.Sub(failure.LastAttempt) > FailedLoginWindow {
 		failure.Count = 0
 	}
 	failure.Count++
 	failure.LastAttempt = now
-	if failure.Count >= 5 {
-		failure.LockedUntil = now.Add(15 * time.Minute)
+	if failure.Count >= MaxFailedLoginAttempts {
+		failure.LockedUntil = now.Add(LockoutDuration)
 	}
 	s.failures[username] = failure
 }
@@ -258,7 +258,7 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 		return "", errors.New("email not found")
 	}
 	token := generateSessionID(user.Username)
-	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: time.Now().Add(1 * time.Hour)}
+	resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: time.Now().Add(PasswordResetTokenTTL)}
 	return token, nil
 }
 
