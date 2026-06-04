@@ -13,7 +13,7 @@ import (
 func hashPassword(password string) string {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		if len(password) < MinPasswordLength {
+		return ""
 	}
 	return string(hashed)
 }
