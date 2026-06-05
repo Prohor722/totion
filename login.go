@@ -215,19 +215,19 @@ func (s *authService) isAccountLocked(username string) bool {
 	if !exists {
 		return false
 	}
-	return time.Now().Before(failure.LockedUntil)
+	return s.clock.Now().Before(failure.LockedUntil)
 }
 
 func (s *authService) recordFailedLogin(username string) {
 	failure := s.failures[username]
-	now := time.Now()
-	if s.clock.Now().Sub(failure.LastAttempt) > FailedLoginWindow {
+	now := s.clock.Now()
+	if now.Sub(failure.LastAttempt) > FailedLoginWindow {
 		failure.Count = 0
 	}
 	failure.Count++
 	failure.LastAttempt = now
 	if failure.Count >= FailedLoginThreshold {
-		failure.LockedUntil = s.clock.Now().Add(AccountLockDuration)
+		failure.LockedUntil = now.Add(AccountLockDuration)
 	}
 	s.failures[username] = failure
 }
