@@ -65,11 +65,22 @@ type AuthService interface {
 	PasswordService
 }
 
+type Clock interface {
+	Now() time.Time
+}
+
+type realClock struct{}
+
+func (realClock) Now() time.Time {
+	return time.Now()
+}
+
 type authService struct {
 	users       UserRepository
 	sessions    SessionRepository
 	resetTokens map[string]passwordResetToken
 	failures    map[string]failedLogin
+	clock       Clock
 }
 
 type passwordResetToken struct {
@@ -84,11 +95,16 @@ type failedLogin struct {
 }
 
 func NewAuthService(users UserRepository, sessions SessionRepository) AuthService {
+	return NewAuthServiceWithClock(users, sessions, realClock{})
+}
+
+func NewAuthServiceWithClock(users UserRepository, sessions SessionRepository, clock Clock) AuthService {
 	return &authService{
 		users:       users,
 		sessions:    sessions,
 		resetTokens: make(map[string]passwordResetToken),
 		failures:    make(map[string]failedLogin),
+		clock:       clock,
 	}
 }
 
@@ -186,7 +202,7 @@ func (s *authService) ValidateSession(sessionID string) (string, error) {
 		return "", errors.New("invalid or expired session")
 	}
 
-	if time.Now().After(session.ExpiresAt) {
+	if s.clock.Now().After(session.ExpiresAt) {
 		s.sessions.Remove(sessionID)
 		return "", errors.New("session expired")
 	}
@@ -205,13 +221,13 @@ func (s *authService) isAccountLocked(username string) bool {
 func (s *authService) recordFailedLogin(username string) {
 	failure := s.failures[username]
 	now := time.Now()
-	if now.Sub(failure.LastAttempt) > FailedLoginWindow {
+	if s.clock.Now().Sub(failure.LastAttempt) > FailedLoginWindow {
 		failure.Count = 0
 	}
 	failure.Count++
 	failure.LastAttempt = now
 	if failure.Count >= FailedLoginThreshold {
-		failure.LockedUntil = now.Add(AccountLockDuration)
+		failure.LockedUntil = s.clock.Now().Add(AccountLockDuration)
 	}
 	s.failures[username] = failure
 }
@@ -277,7 +293,7 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 		return errors.New("invalid token")
 	}
 
-	if time.Now().After(reset.ExpiresAt) {
+	if s.clock.Now().After(reset.ExpiresAt) {
 		delete(s.resetTokens, token)
 		return errors.New("reset token expired")
 	}
