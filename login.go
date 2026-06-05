@@ -120,10 +120,15 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("email already registered")
 	}
 
+	passwordHash, err := hashPassword(password)
+	if err != nil {
+		return err
+	}
+
 	return s.users.Add(&User{
 		Username:     username,
 		Email:        email,
-		PasswordHash: hashPassword(password),
+		PasswordHash: passwordHash,
 		Profile: &UserProfile{
 			Username: username,
 			Email:    email,
@@ -248,7 +253,11 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
 	}
 
-	user.PasswordHash = hashPassword(newPassword)
+	passwordHash, err := hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = passwordHash
 	return nil
 }
 
@@ -282,7 +291,11 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 		return errors.New("user not found")
 	}
 
-	user.PasswordHash = hashPassword(newPassword)
+	passwordHash, err := hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = passwordHash
 	delete(s.resetTokens, token)
 	return nil
 }

@@ -3,8 +3,7 @@ package main
 import "time"
 
 // Centralized configuration for auth and password policies.
-var (
-	MinPasswordLength     = 8
+const (
 	SessionTTL            = 30 * time.Minute
 	FailedLoginThreshold  = 5
 	FailedLoginWindow     = 15 * time.Minute
