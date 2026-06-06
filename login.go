@@ -175,7 +175,7 @@ func (s *authService) Login(username, password string) (string, error) {
 		Username:  username,
 		SessionID: sessionID,
 		IsActive:  true,
-		ExpiresAt: time.Now().Add(SessionTTL),
+		ExpiresAt: s.clock.Now().Add(SessionTTL),
 	})
 
 	return sessionID, nil
@@ -283,7 +283,7 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 		return "", errors.New("email not found")
 	}
 	token := generateSessionID(user.Username)
-	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: time.Now().Add(PasswordResetTokenTTL)}
+	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: s.clock.Now().Add(PasswordResetTokenTTL)}
 	return token, nil
 }
 
