@@ -186,11 +186,33 @@ func (c *changePasswordCommand) Execute(args []string) (string, error) {
 	return "Password changed successfully", nil
 }
 
+type requestResetCommand struct{ reset PasswordResetService }
+
+func (c *requestResetCommand) Execute(args []string) (string, error) {
+	if len(args) != 2 {
+		return "", errors.New("Usage: requestreset <email>")
+	}
+	return c.reset.RequestReset(args[1])
+}
+
+type resetPasswordCommand struct{ reset PasswordResetService }
+
+func (c *resetPasswordCommand) Execute(args []string) (string, error) {
+	if len(args) != 3 {
+		return "", errors.New("Usage: resetpassword <token> <newPassword>")
+	}
+	if err := c.reset.ResetPassword(args[1], args[2]); err != nil {
+		return "", err
+	}
+	return "Password reset successfully", nil
+}
+
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
 func ProcessTerminalInputWithAuth(auth AuthService) {
 	ProcessTerminalInputWithServices(
 		NewTerminalUserService(auth, auth, auth),
 		NewTerminalSessionService(auth),
+		NewTerminalPasswordResetService(NewForgetPasswordService(auth)),
 	)
 }
 
