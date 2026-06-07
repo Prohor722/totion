@@ -4,11 +4,14 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"regexp"
 	"strings"
 	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+var emailRegexp = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 
 func hashPassword(password string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -57,5 +60,5 @@ func generateSessionID(username string) string {
 }
 
 func isValidEmail(email string) bool {
-	return strings.Contains(email, "@") && strings.Contains(email, ".")
+	return emailRegexp.MatchString(strings.TrimSpace(email))
 }

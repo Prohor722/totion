@@ -40,6 +40,9 @@ func (s *profileService) GetProfile(username string) (*UserProfile, error) {
 	if !exists {
 		return nil, errors.New("user not found")
 	}
+	if user.Profile == nil {
+		return nil, errors.New("profile data unavailable")
+	}
 	return &UserProfile{
 		Username: user.Username,
 		Email:    user.Email,
