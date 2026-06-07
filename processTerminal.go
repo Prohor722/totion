@@ -242,7 +242,7 @@ func ProcessTerminalInputWithServices(users UserService, sessions SessionService
 		if input == "" {
 			continue
 		}
-		args := strings.Split(input, " ")
+		args := strings.Fields(input)
 		cmdName := args[0]
 		if cmdName == "exit" {
 			fmt.Println("Exiting...")
