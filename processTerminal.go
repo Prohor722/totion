@@ -28,10 +28,31 @@ type SessionService interface {
 	Logout(sessionID string) error
 }
 
+type PasswordResetService interface {
+	RequestReset(email string) (string, error)
+	ResetPassword(token, newPassword string) error
+}
+
 type authUserService struct {
 	account  RegistrationService
 	password PasswordService
 	session  SessionValidationService
+}
+
+type authResetService struct {
+	reset ForgetPasswordService
+}
+
+func NewTerminalPasswordResetService(reset ForgetPasswordService) PasswordResetService {
+	return &authResetService{reset: reset}
+}
+
+func (d *authResetService) RequestReset(email string) (string, error) {
+	return d.reset.RequestReset(email)
+}
+
+func (d *authResetService) ResetPassword(token, newPassword string) error {
+	return d.reset.ResetPassword(token, newPassword)
 }
 
 func NewTerminalUserService(account RegistrationService, password PasswordService, session SessionValidationService) UserService {
