@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors" // Keep this import for error handling
 	"sort"
 	"sync"
 )
@@ -35,16 +34,16 @@ func (r *InMemoryUserRepository) Get(username string) (*User, bool) {
 }
 
 func (r *InMemoryUserRepository) Add(user *User) error {
-    if user == nil {
-        return errors.New("user is nil") // This should be replaced with a typed error
-    }
+	if user == nil {
+		return ErrUserIsNil
+	}
 
     r.mutex.Lock()
     defer r.mutex.Unlock()
 
-    if _, exists := r.users[user.Username]; exists {
-        return errors.New("username already exists") // This should be replaced with a typed error
-    }
+	if _, exists := r.users[user.Username]; exists {
+		return ErrUserExists
+	}
     r.users[user.Username] = user
     return nil
 }
@@ -82,7 +81,7 @@ func (r *InMemoryUserRepository) Delete(username string) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 	if _, ok := r.users[username]; !ok {
-		return errors.New("user not found") // This should be replaced with a typed error
+		return ErrUserNotFound
 	}
 	delete(r.users, username)
 	return nil
