@@ -76,7 +76,7 @@ func TestAuthService_PasswordResetFlow(t *testing.T) {
 	sessions := NewInMemorySessionRepository()
 	auth := NewAuthServiceWithClock(users, sessions, clock)
 
-	if err := auth.Register("dave", "dave@example.com", "Reset1@"); err != nil {
+	if err := auth.Register("dave", "dave@example.com", "Reset1@A"); err != nil {
 		t.Fatalf("Register failed: %v", err)
 	}
 
@@ -103,7 +103,7 @@ func TestAuthService_PasswordResetTokenExpires(t *testing.T) {
 	sessions := NewInMemorySessionRepository()
 	auth := NewAuthServiceWithClock(users, sessions, clock)
 
-	if err := auth.Register("evan", "evan@example.com", "Reset2#"); err != nil {
+	if err := auth.Register("evan", "evan@example.com", "Reset2#A"); err != nil {
 		t.Fatalf("Register failed: %v", err)
 	}
 
