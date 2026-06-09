@@ -1,17 +1,24 @@
 package store
 
 import (
+	"errors"
 	"sort"
 	"sync"
 	"github.com/Prohor722/totion/model"
 )
 
+var (
+	ErrUserExists   = errors.New("username already exists")
+	ErrUserNotFound = errors.New("user not found")
+	ErrUserIsNil    = errors.New("user is nil")
+)
+
 // UserRepository defines operations for user persistence
 type UserRepository interface {
-	Get(username string) (*User, bool)
-	Add(user *User) error
+	Get(username string) (*model.User, bool)
+	Add(user *model.User) error
 	Exists(username string) bool
-	FindByEmail(email string) (*User, bool)
+	FindByEmail(email string) (*model.User, bool)
 	List() []string
 	Delete(username string) error
 }
@@ -19,15 +26,15 @@ type UserRepository interface {
 // InMemoryUserRepository is a simple in-memory store for users
 type InMemoryUserRepository struct {
 	mutex sync.RWMutex
-	users map[string]*User
+	users map[string]*model.User
 }
 
 // NewInMemoryUserRepository creates a new in-memory repo
 func NewInMemoryUserRepository() *InMemoryUserRepository {
-	return &InMemoryUserRepository{users: make(map[string]*User)}
+	return &InMemoryUserRepository{users: make(map[string]*model.User)}
 }
 
-func (r *InMemoryUserRepository) Get(username string) (*User, bool) {
+func (r *InMemoryUserRepository) Get(username string) (*model.User, bool) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 	u, ok := r.users[username]

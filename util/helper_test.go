@@ -1,34 +1,34 @@
-package main
+package util
 
 import "testing"
 
 func TestIsValidEmail(t *testing.T) {
 	valid := "user@example.com"
-	if !isValidEmail(valid) {
+	if !IsValidEmail(valid) {
 		t.Fatalf("expected valid email for %s", valid)
 	}
 	invalid := "userexample.com"
-	if isValidEmail(invalid) {
+	if IsValidEmail(invalid) {
 		t.Fatalf("expected invalid email for %s", invalid)
 	}
 }
 
 func TestIsStrongPasswordAndHashVerify(t *testing.T) {
 	pass := "Abcdef1!"
-	if !isStrongPassword(pass) {
+	if !IsStrongPassword(pass) {
 		t.Fatalf("expected password to be strong: %s", pass)
 	}
 
-	hash, err := hashPassword(pass)
+	hash, err := HashPassword(pass)
 	if err != nil {
-		t.Fatalf("hashPassword returned error: %v", err)
+		t.Fatalf("HashPassword returned error: %v", err)
 	}
 
-	if !verifyPassword(pass, hash) {
-		t.Fatalf("verifyPassword failed for valid password/hash")
+	if !VerifyPassword(pass, hash) {
+		t.Fatalf("VerifyPassword failed for valid password/hash")
 	}
 
-	if verifyPassword("wrong", hash) {
-		t.Fatalf("verifyPassword succeeded for wrong password")
+	if VerifyPassword("wrong", hash) {
+		t.Fatalf("VerifyPassword succeeded for wrong password")
 	}
 }
