@@ -41,7 +41,7 @@ func (r *InMemoryUserRepository) Get(username string) (*model.User, bool) {
 	return u, ok
 }
 
-func (r *InMemoryUserRepository) Add(user *User) error {
+func (r *InMemoryUserRepository) Add(user *model.User) error {
 	if user == nil {
 		return ErrUserIsNil
 	}
@@ -63,7 +63,7 @@ func (r *InMemoryUserRepository) Exists(username string) bool {
 	return ok
 }
 
-func (r *InMemoryUserRepository) FindByEmail(email string) (*User, bool) {
+func (r *InMemoryUserRepository) FindByEmail(email string) (*model.User, bool) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 	for _, u := range r.users {
