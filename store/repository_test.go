@@ -1,6 +1,9 @@
-package main
+package store
 
-import "testing"
+import (
+	"testing"
+	"github.com/Prohor722/totion/model"
+)
 
 func TestInMemoryUserRepository(t *testing.T) {
 	repo := NewInMemoryUserRepository()

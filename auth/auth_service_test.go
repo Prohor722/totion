@@ -1,8 +1,9 @@
-package main
+package auth
 
 import (
 	"testing"
 	"time"
+	"github.com/Prohor722/totion/store"
 )
 
 type testClock struct {

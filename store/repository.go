@@ -1,8 +1,9 @@
-package main
+package store
 
 import (
 	"sort"
 	"sync"
+	"github.com/Prohor722/totion/model"
 )
 
 // UserRepository defines operations for user persistence
