@@ -10,27 +10,27 @@ import (
 )
 
 type SessionRepository interface {
-	Create(session *Session)
-	Get(sessionID string) (*Session, bool)
+	Create(session *model.Session)
+	Get(sessionID string) (*model.Session, bool)
 	Remove(sessionID string)
 }
 
 type InMemorySessionRepository struct {
-	sessions map[string]*Session
+	sessions map[string]*model.Session
 }
 
 func NewInMemorySessionRepository() *InMemorySessionRepository {
-	return &InMemorySessionRepository{sessions: make(map[string]*Session)}
+	return &InMemorySessionRepository{sessions: make(map[string]*model.Session)}
 }
 
-func (r *InMemorySessionRepository) Create(session *Session) {
+func (r *InMemorySessionRepository) Create(session *model.Session) {
 	if session == nil {
 		return
 	}
 	r.sessions[session.SessionID] = session
 }
 
-func (r *InMemorySessionRepository) Get(sessionID string) (*Session, bool) {
+func (r *InMemorySessionRepository) Get(sessionID string) (*model.Session, bool) {
 	session, ok := r.sessions[sessionID]
 	return session, ok
 }
@@ -79,7 +79,7 @@ func (realClock) Now() time.Time {
 }
 
 type authService struct {
-	users       UserRepository
+	users       store.UserRepository
 	sessions    SessionRepository
 	resetTokens map[string]passwordResetToken
 	failures    map[string]failedLogin
@@ -97,11 +97,11 @@ type failedLogin struct {
 	LockedUntil time.Time
 }
 
-func NewAuthService(users UserRepository, sessions SessionRepository) AuthService {
+func NewAuthService(users store.UserRepository, sessions SessionRepository) AuthService {
 	return NewAuthServiceWithClock(users, sessions, realClock{})
 }
 
-func NewAuthServiceWithClock(users UserRepository, sessions SessionRepository, clock Clock) AuthService {
+func NewAuthServiceWithClock(users store.UserRepository, sessions SessionRepository, clock Clock) AuthService {
 	return &authService{
 		users:       users,
 		sessions:    sessions,
@@ -112,7 +112,7 @@ func NewAuthServiceWithClock(users UserRepository, sessions SessionRepository, c
 }
 
 // DefaultAuth is the package-level auth service used by the app.
-var DefaultAuth AuthService = NewAuthService(UserStore, NewInMemorySessionRepository())
+var DefaultAuth AuthService = NewAuthService(store.UserStore, NewInMemorySessionRepository())
 
 func (s *authService) Register(username, email, password string) error {
 	if username == "" || email == "" || password == "" {
