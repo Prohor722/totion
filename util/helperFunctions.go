@@ -13,7 +13,7 @@ import (
 
 var emailRegexp = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -21,14 +21,14 @@ func hashPassword(password string) (string, error) {
 	return string(hashed), nil
 }
 
-func verifyPassword(password, hash string) bool {
+func VerifyPassword(password, hash string) bool {
 	if hash == "" {
 		return false
 	}
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
 }
 
-func isStrongPassword(password string) bool {
+func IsStrongPassword(password string) bool {
 	if len(password) < MinPasswordLength {
 		return false
 	}
@@ -49,7 +49,7 @@ func isStrongPassword(password string) bool {
 
 }
 
-func generateSessionID(username string) string {
+func GenerateSessionID(username string) string {
 	buffer := make([]byte, 16)
 	if _, err := rand.Read(buffer); err == nil {
 		return hex.EncodeToString(buffer)
@@ -59,6 +59,6 @@ func generateSessionID(username string) string {
 	return hex.EncodeToString(fallback[:])[:16]
 }
 
-func isValidEmail(email string) bool {
+func IsValidEmail(email string) bool {
 	return emailRegexp.MatchString(strings.TrimSpace(email))
 }
