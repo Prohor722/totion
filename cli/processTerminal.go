@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"bufio"
@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"github.com/Prohor722/totion/auth"
+	"github.com/Prohor722/totion/model"
 )
 
 // Command represents a terminal action
