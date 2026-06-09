@@ -38,14 +38,14 @@ func (r *InMemoryUserRepository) Add(user *User) error {
 		return ErrUserIsNil
 	}
 
-    r.mutex.Lock()
-    defer r.mutex.Unlock()
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 
 	if _, exists := r.users[user.Username]; exists {
 		return ErrUserExists
 	}
-    r.users[user.Username] = user
-    return nil
+	r.users[user.Username] = user
+	return nil
 }
 
 func (r *InMemoryUserRepository) Exists(username string) bool {
