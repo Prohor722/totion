@@ -1,4 +1,4 @@
-package main
+package auth
 
 // ForgetPasswordService defines operations for password reset
 type ForgetPasswordService interface {

@@ -1,9 +1,12 @@
-package main
+package auth
 
 import (
 	"errors"
 	"fmt"
 	"time"
+	"github.com/Prohor722/totion/model"
+	"github.com/Prohor722/totion/util"
+	"github.com/Prohor722/totion/store"
 )
 
 type SessionRepository interface {

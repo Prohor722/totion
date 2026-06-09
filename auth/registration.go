@@ -1,4 +1,4 @@
-package main
+package auth
 
 // AuthManager defines authentication operations.
 // This interface follows Interface Segregation Principle - clients depend on specific operations.
