@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/Prohor722/totion/model"
-    "github.com/Prohor722/totion/util"
 	"github.com/Prohor722/totion/store"
+	"github.com/Prohor722/totion/util"
 )
 
 type SessionRepository interface {
@@ -224,13 +224,13 @@ func (s *authService) isAccountLocked(username string) bool {
 func (s *authService) recordFailedLogin(username string) {
 	failure := s.failures[username]
 	now := s.clock.Now()
-	if now.Sub(failure.LastAttempt) > FailedLoginWindow {
+	if now.Sub(failure.LastAttempt) > util.FailedLoginWindow {
 		failure.Count = 0
 	}
 	failure.Count++
 	failure.LastAttempt = now
-	if failure.Count >= FailedLoginThreshold {
-		failure.LockedUntil = now.Add(AccountLockDuration)
+	if failure.Count >= util.FailedLoginThreshold {
+		failure.LockedUntil = now.Add(util.AccountLockDuration)
 	}
 	s.failures[username] = failure
 }
