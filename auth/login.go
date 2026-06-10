@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Prohor722/totion/model"
+    "github.com/Prohor722/totion/util"
 	"github.com/Prohor722/totion/store"
 )
 
@@ -52,7 +53,7 @@ type CredentialService interface {
 
 type SessionValidationService interface {
 	ValidateSession(sessionID string) (string, error)
-	GetUserInfo(sessionID string) (*User, error)
+	GetUserInfo(sessionID string) (*model.User, error)
 }
 
 type PasswordService interface {
