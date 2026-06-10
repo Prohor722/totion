@@ -123,11 +123,11 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("username must be at least 3 characters")
 	}
 
-	if !isStrongPassword(password) {
-		return fmt.Errorf("password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
+	if !util.IsStrongPassword(password) {
+		return fmt.Errorf("password must be at least %d characters and include upper, lower, digit, and symbol", util.MinPasswordLength)
 	}
 
-	if !isValidEmail(email) {
+	if !util.IsValidEmail(email) {
 		return errors.New("invalid email format")
 	}
 
@@ -139,16 +139,15 @@ func (s *authService) Register(username, email, password string) error {
 		return errors.New("email already registered")
 	}
 
-	passwordHash, err := hashPassword(password)
+	passwordHash, err := util.HashPassword(password)
 	if err != nil {
 		return err
 	}
-
-	return s.users.Add(&User{
+	return s.users.Add(&model.User{
 		Username:     username,
 		Email:        email,
 		PasswordHash: passwordHash,
-		Profile: &UserProfile{
+		Profile: &model.UserProfile{
 			Username: username,
 			Email:    email,
 			Bio:      "",
@@ -166,19 +165,19 @@ func (s *authService) Login(username, password string) (string, error) {
 	}
 
 	user, exists := s.users.Get(username)
-	if !exists || !verifyPassword(password, user.PasswordHash) {
+	if !exists || !util.VerifyPassword(password, user.PasswordHash) {
 		s.recordFailedLogin(username)
 		return "", errors.New("invalid username or password")
 	}
 
 	s.clearFailedLogin(username)
 
-	sessionID := generateSessionID(username)
-	s.sessions.Create(&Session{
+	sessionID := util.GenerateSessionID(username)
+	s.sessions.Create(&model.Session{
 		Username:  username,
 		SessionID: sessionID,
 		IsActive:  true,
-		ExpiresAt: s.clock.Now().Add(SessionTTL),
+		ExpiresAt: s.clock.Now().Add(util.SessionTTL),
 	})
 
 	return sessionID, nil
@@ -264,15 +263,15 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 		return errors.New("user not found")
 	}
 
-	if !verifyPassword(oldPassword, user.PasswordHash) {
+	if !util.VerifyPassword(oldPassword, user.PasswordHash) {
 		return errors.New("current password is incorrect")
 	}
 
-	if !isStrongPassword(newPassword) {
-		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
+	if !util.IsStrongPassword(newPassword) {
+		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", util.MinPasswordLength)
 	}
 
-	passwordHash, err := hashPassword(newPassword)
+	passwordHash, err := util.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
@@ -285,8 +284,8 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 	if !exists {
 		return "", errors.New("email not found")
 	}
-	token := generateSessionID(user.Username)
-	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: s.clock.Now().Add(PasswordResetTokenTTL)}
+	token := util.GenerateSessionID(user.Username)
+	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: s.clock.Now().Add(util.PasswordResetTokenTTL)}
 	return token, nil
 }
 
@@ -301,8 +300,8 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 		return errors.New("reset token expired")
 	}
 
-	if !isStrongPassword(newPassword) {
-		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", MinPasswordLength)
+	if !util.IsStrongPassword(newPassword) {
+		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", util.MinPasswordLength)
 	}
 
 	user, exists := s.users.Get(reset.Username)
@@ -310,7 +309,7 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 		return errors.New("user not found")
 	}
 
-	passwordHash, err := hashPassword(newPassword)
+	passwordHash, err := util.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
