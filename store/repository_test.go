@@ -8,7 +8,7 @@ import (
 func TestInMemoryUserRepository(t *testing.T) {
 	repo := NewInMemoryUserRepository()
 
-	u := &User{Username: "alice", Email: "alice@example.com", PasswordHash: "h"}
+	u := &model.User{Username: "alice", Email: "alice@example.com", PasswordHash: "h"}
 	if err := repo.Add(u); err != nil {
 		t.Fatalf("Add failed: %v", err)
 	}

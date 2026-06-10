@@ -239,7 +239,7 @@ func (s *authService) clearFailedLogin(username string) {
 	delete(s.failures, username)
 }
 
-func (s *authService) GetUserInfo(sessionID string) (*User, error) {
+func (s *authService) GetUserInfo(sessionID string) (*model.User, error) {
 	username, err := s.ValidateSession(sessionID)
 	if err != nil {
 		return nil, err

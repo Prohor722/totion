@@ -1,29 +1,33 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/Prohor722/totion/auth"
+	"github.com/Prohor722/totion/store"
+)
 
 type App struct {
-	auth           AuthManager
+	auth           auth.AuthManager
 	userManager    UserManager
-	profileManager ProfileManager
-	resetService   ForgetPasswordService
+	profileManager auth.ProfileManager
+	resetService   auth.ForgetPasswordService
 }
 
-func NewApp(auth AuthManager, userManager UserManager, profileManager ProfileManager, resetService ForgetPasswordService) *App {
+func NewApp(a auth.AuthManager, userManager UserManager, profileManager auth.ProfileManager, resetService auth.ForgetPasswordService) *App {
 	return &App{
-		auth:           auth,
+		auth:           a,
 		userManager:    userManager,
 		profileManager: profileManager,
 		resetService:   resetService,
 	}
 }
 
-func NewAppWithAuth(authService AuthService, userRepo UserRepository) *App {
+func NewAppWithAuth(authService auth.AuthService, userRepo store.UserRepository) *App {
 	return NewApp(
-		NewDefaultAuthManager(authService, authService),
+		auth.NewDefaultAuthManager(authService, authService),
 		NewDefaultUserManager(authService, authService, authService),
-		NewDefaultProfileManager(NewProfileService(userRepo)),
-		NewForgetPasswordService(authService),
+		auth.NewDefaultProfileManager(auth.NewProfileService(userRepo)),
+		auth.NewForgetPasswordService(authService),
 	)
 }
 
