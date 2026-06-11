@@ -1,11 +1,16 @@
 package main
 
-import "os"
+import (
+	"os"
+
+	"github.com/Prohor722/totion/auth"
+	"github.com/Prohor722/totion/store"
+)
 
 func main() {
-	authService := NewAuthService(UserStore, NewInMemorySessionRepository())
+	authService := auth.NewAuthService(store.UserStore, auth.NewInMemorySessionRepository())
 	if len(os.Args) > 1 && os.Args[1] == "cli" {
-		ProcessTerminalInputWithAuth(authService)
+		auth.ProcessTerminalInputWithAuth(authService)
 		return
 	}
 

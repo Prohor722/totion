@@ -21,7 +21,7 @@ type UserService interface {
 	ListAll() []string
 	Delete(username string) error
 	ChangePassword(sessionID, oldPassword, newPassword string) error
-	GetInfo(sessionID string) (*User, error)
+	GetInfo(sessionID string) (*model.User, error)
 }
 
 // SessionService defines session-related operations used by commands
@@ -36,16 +36,16 @@ type PasswordResetService interface {
 }
 
 type authUserService struct {
-	account  RegistrationService
-	password PasswordService
-	session  SessionValidationService
+	account  auth.RegistrationService
+	password auth.PasswordService
+	session  auth.SessionValidationService
 }
 
 type authResetService struct {
-	reset ForgetPasswordService
+	reset auth.ForgetPasswordService
 }
 
-func NewTerminalPasswordResetService(reset ForgetPasswordService) PasswordResetService {
+func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordResetService {
 	return &authResetService{reset: reset}
 }
 
@@ -57,7 +57,7 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
 
-func NewTerminalUserService(account RegistrationService, password PasswordService, session SessionValidationService) UserService {
+func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
 	return &authUserService{account: account, password: password, session: session}
 }
 
@@ -77,7 +77,7 @@ func (d *authUserService) ChangePassword(s, o, n string) error {
 	return d.password.ChangePassword(s, o, n)
 }
 
-func (d *authUserService) GetInfo(sessionID string) (*User, error) {
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 	return d.session.GetUserInfo(sessionID)
 }
 
@@ -85,7 +85,7 @@ type authSessionService struct {
 	credentials CredentialService
 }
 
-func NewTerminalSessionService(credentials CredentialService) SessionService {
+func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
 
