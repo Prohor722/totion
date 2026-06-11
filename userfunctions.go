@@ -1,12 +1,16 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"github.com/Prohor722/totion/auth"
+	"github.com/Prohor722/totion/model"
+)
 
 // UserManager defines operations for managing user accounts and sessions.
 // This interface follows Interface Segregation Principle - clients depend on specific operations.
 type UserManager interface {
 	ValidateSession(sessionID string) (string, error)
-	GetUserInfo(sessionID string) (*User, error)
+	GetUserInfo(sessionID string) (*model.User, error)
 	ListAllUsers() []string
 	DeleteUser(username string) error
 	ChangePassword(sessionID, oldPassword, newPassword string) error
@@ -15,13 +19,13 @@ type UserManager interface {
 // defaultUserManager implements UserManager by delegating to focused auth abstractions.
 // This follows Dependency Inversion Principle - concrete implementation depends on small interfaces.
 type defaultUserManager struct {
-	session  SessionValidationService
-	account  RegistrationService
-	password PasswordService
+	session  auth.SessionValidationService
+	account  auth.RegistrationService
+	password auth.PasswordService
 }
 
 // NewDefaultUserManager creates a new UserManager with focused auth abstractions.
-func NewDefaultUserManager(session SessionValidationService, account RegistrationService, password PasswordService) UserManager {
+func NewDefaultUserManager(session auth.SessionValidationService, account auth.RegistrationService, password auth.PasswordService) UserManager {
 	return &defaultUserManager{
 		session:  session,
 		account:  account,
@@ -39,7 +43,7 @@ func (m *defaultUserManager) ValidateSession(sessionID string) (string, error) {
 }
 
 // GetUserInfo retrieves user information (requires active session).
-func (m *defaultUserManager) GetUserInfo(sessionID string) (*User, error) {
+func (m *defaultUserManager) GetUserInfo(sessionID string) (*model.User, error) {
 	return m.session.GetUserInfo(sessionID)
 }
 
@@ -64,7 +68,7 @@ func (m *defaultUserManager) ChangePassword(sessionID, oldPassword, newPassword 
 // These maintain backwards compatibility with existing code.
 
 // userManager is the default global instance.
-var userManager UserManager = NewDefaultUserManager(DefaultAuth, DefaultAuth, DefaultAuth)
+var userManager UserManager = NewDefaultUserManager(auth.DefaultAuth, auth.DefaultAuth, auth.DefaultAuth)
 
 // ValidateSession checks if a sessionID corresponds to an active session.
 func ValidateSession(sessionID string) (string, error) {
@@ -72,7 +76,7 @@ func ValidateSession(sessionID string) (string, error) {
 }
 
 // GetUserInfo retrieves user information (requires active session)
-func GetUserInfo(sessionID string) (*User, error) {
+func GetUserInfo(sessionID string) (*model.User, error) {
 	return userManager.GetUserInfo(sessionID)
 }
 
