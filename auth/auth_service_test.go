@@ -20,7 +20,7 @@ func (c *testClock) Advance(d time.Duration) {
 
 func TestAuthService_RegisterLoginLogoutValidate(t *testing.T) {
 	clock := &testClock{now: time.Now()}
-	users := NewInMemoryUserRepository()
+	users := store.NewInMemoryUserRepository()
 	sessions := NewInMemorySessionRepository()
 	auth := NewAuthServiceWithClock(users, sessions, clock)
 
@@ -52,7 +52,7 @@ func TestAuthService_RegisterLoginLogoutValidate(t *testing.T) {
 
 func TestAuthService_SessionExpires(t *testing.T) {
 	clock := &testClock{now: time.Now()}
-	users := NewInMemoryUserRepository()
+	users := store.NewInMemoryUserRepository()
 	sessions := NewInMemorySessionRepository()
 	auth := NewAuthServiceWithClock(users, sessions, clock)
 
@@ -73,7 +73,7 @@ func TestAuthService_SessionExpires(t *testing.T) {
 
 func TestAuthService_PasswordResetFlow(t *testing.T) {
 	clock := &testClock{now: time.Now()}
-	users := NewInMemoryUserRepository()
+	users := store.NewInMemoryUserRepository()
 	sessions := NewInMemorySessionRepository()
 	auth := NewAuthServiceWithClock(users, sessions, clock)
 
@@ -100,7 +100,7 @@ func TestAuthService_PasswordResetFlow(t *testing.T) {
 
 func TestAuthService_PasswordResetTokenExpires(t *testing.T) {
 	clock := &testClock{now: time.Now()}
-	users := NewInMemoryUserRepository()
+	users := store.NewInMemoryUserRepository()
 	sessions := NewInMemorySessionRepository()
 	auth := NewAuthServiceWithClock(users, sessions, clock)
 
