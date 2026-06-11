@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/Prohor722/totion/auth"
-	"github.com/Prohor722/totion/model"
 	"os"
 	"strings"
+
+	"github.com/Prohor722/totion/auth"
+	"github.com/Prohor722/totion/model"
 )
 
 // Command represents a terminal action
