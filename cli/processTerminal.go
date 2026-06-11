@@ -82,7 +82,7 @@ func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 }
 
 type authSessionService struct {
-	credentials CredentialService
+	credentials auth.CredentialService
 }
 
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
