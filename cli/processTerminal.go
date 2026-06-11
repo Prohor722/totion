@@ -210,11 +210,11 @@ func (c *resetPasswordCommand) Execute(args []string) (string, error) {
 }
 
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
-func ProcessTerminalInputWithAuth(auth AuthService) {
+func ProcessTerminalInputWithAuth(authService auth.AuthService) {
 	ProcessTerminalInputWithServices(
-		NewTerminalUserService(auth, auth, auth),
-		NewTerminalSessionService(auth),
-		NewTerminalPasswordResetService(NewForgetPasswordService(auth)),
+		NewTerminalUserService(authService, authService, authService),
+		NewTerminalSessionService(authService),
+		NewTerminalPasswordResetService(auth.NewForgetPasswordService(authService)),
 	)
 }
 
@@ -268,5 +268,5 @@ func ProcessTerminalInputWithServices(users UserService, sessions SessionService
 
 // ProcessTerminalInput starts the interactive CLI with the default auth service.
 func ProcessTerminalInput() {
-	ProcessTerminalInputWithAuth(DefaultAuth)
+	ProcessTerminalInputWithAuth(auth.DefaultAuth)
 }
