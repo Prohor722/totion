@@ -271,10 +271,10 @@ func ProcessTerminalInputWithAuth(authService auth.AuthService, profileService a
 	)
 }
 
-func ProcessTerminalInputWithServices(users UserService, sessions SessionService, reset PasswordResetService) {
+func ProcessTerminalInputWithServices(users UserService, sessions SessionService, reset PasswordResetService, profiles ProfileService) {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Welcome to the User Management System")
-	fmt.Println("Available commands: register, login, logout, info, list, delete, changepassword, requestreset, resetpassword, exit")
+	fmt.Println("Available commands: register, login, logout, info, list, delete, changepassword, requestreset, resetpassword, viewprofile, updateprofile, exit")
 
 	commands := map[string]Command{
 		"register":       &registerCommand{users: users},
@@ -286,6 +286,8 @@ func ProcessTerminalInputWithServices(users UserService, sessions SessionService
 		"changepassword": &changePasswordCommand{users: users},
 		"requestreset":   &requestResetCommand{reset: reset},
 		"resetpassword":  &resetPasswordCommand{reset: reset},
+		"viewprofile":    &viewProfileCommand{users: users},
+		"updateprofile":  &updateProfileCommand{users: users, profiles: profiles},
 	}
 
 	for {
