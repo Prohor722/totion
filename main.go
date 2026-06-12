@@ -9,12 +9,15 @@ import (
 )
 
 func main() {
-	authService := auth.NewAuthService(store.UserStore, auth.NewInMemorySessionRepository())
+	userRepo := store.NewInMemoryUserRepository()
+	authService := auth.NewAuthService(userRepo, auth.NewInMemorySessionRepository())
+	profileService := auth.NewProfileService(userRepo)
+
 	if len(os.Args) > 1 && os.Args[1] == "cli" {
-		cli.ProcessTerminalInputWithAuth(authService)
+		cli.ProcessTerminalInputWithAuth(authService, profileService)
 		return
 	}
 
-	app := NewAppWithAuth(authService, store.UserStore)
+	app := NewAppWithAuth(authService, userRepo)
 	app.RunDemo()
 }
