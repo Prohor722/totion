@@ -93,4 +93,37 @@ func (a *App) RunDemo() {
 	for _, username := range a.userManager.ListAllUsers() {
 		fmt.Printf("  - %s\n", username)
 	}
+
+	fmt.Println("9. Viewing and updating profile for john_doe...")
+	profile, err := a.profileManager.GetUserProfile("john_doe")
+	if err != nil {
+		fmt.Println("GetUserProfile error:", err)
+	} else {
+		fmt.Printf("Current profile: %+v\n", profile)
+	}
+
+	if err := a.profileManager.UpdateUserProfile("john_doe", "john.new@example.com", "Updated bio for John"); err != nil {
+		fmt.Println("UpdateUserProfile error:", err)
+	} else {
+		newProfile, _ := a.profileManager.GetUserProfile("john_doe")
+		fmt.Printf("Updated profile: %+v\n", newProfile)
+	}
+
+	fmt.Println("10. Password reset flow for jane_smith...")
+	token, err := a.resetService.RequestReset("jane@example.com")
+	if err != nil {
+		fmt.Println("RequestReset error:", err)
+	} else {
+		fmt.Printf("Reset token created for jane_smith: %s\n", token)
+		if err := a.resetService.ResetPassword(token, "SafePass1$"); err != nil {
+			fmt.Println("ResetPassword error:", err)
+		} else {
+			fmt.Println("Password reset succeeded for jane_smith")
+			if _, err := a.auth.LoginUser("jane_smith", "SafePass1$"); err != nil {
+				fmt.Println("Login with new password failed:", err)
+			} else {
+				fmt.Println("Login with new password succeeded")
+			}
+		}
+	}
 }
