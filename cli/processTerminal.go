@@ -226,12 +226,48 @@ func (c *resetPasswordCommand) Execute(args []string) (string, error) {
 	return "Password reset successfully", nil
 }
 
+type viewProfileCommand struct{ users UserService }
+
+func (c *viewProfileCommand) Execute(args []string) (string, error) {
+	if len(args) != 2 {
+		return "", errors.New("Usage: viewprofile <sessionID>")
+	}
+	user, err := c.users.GetInfo(args[1])
+	if err != nil {
+		return "", err
+	}
+	if user.Profile == nil {
+		return "Profile not available", nil
+	}
+	return fmt.Sprintf("Profile for %s:\n  Email: %s\n  Bio: %s", user.Username, user.Profile.Email, user.Profile.Bio), nil
+}
+
+type updateProfileCommand struct {
+	users    UserService
+	profiles ProfileService
+}
+
+func (c *updateProfileCommand) Execute(args []string) (string, error) {
+	if len(args) != 4 {
+		return "", errors.New("Usage: updateprofile <sessionID> <email> <bio>")
+	}
+	user, err := c.users.GetInfo(args[1])
+	if err != nil {
+		return "", err
+	}
+	if err := c.profiles.UpdateProfile(user.Username, args[2], args[3]); err != nil {
+		return "", err
+	}
+	return "Profile updated successfully", nil
+}
+
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
-func ProcessTerminalInputWithAuth(authService auth.AuthService) {
+func ProcessTerminalInputWithAuth(authService auth.AuthService, profileService auth.ProfileService) {
 	ProcessTerminalInputWithServices(
 		NewTerminalUserService(authService, authService, authService),
 		NewTerminalSessionService(authService),
 		NewTerminalPasswordResetService(auth.NewForgetPasswordService(authService)),
+		NewTerminalProfileService(profileService),
 	)
 }
 
