@@ -9,6 +9,7 @@ import (
 
 	"github.com/Prohor722/totion/auth"
 	"github.com/Prohor722/totion/model"
+	"github.com/Prohor722/totion/store"
 )
 
 // Command represents a terminal action
