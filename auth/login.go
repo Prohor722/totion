@@ -223,6 +223,8 @@ func (s *authService) ValidateSession(sessionID string) (string, error) {
 }
 
 func (s *authService) isAccountLocked(username string) bool {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 	failure, exists := s.failures[username]
 	if !exists {
 		return false
@@ -231,6 +233,9 @@ func (s *authService) isAccountLocked(username string) bool {
 }
 
 func (s *authService) recordFailedLogin(username string) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	failure := s.failures[username]
 	now := s.clock.Now()
 	if now.Sub(failure.LastAttempt) > util.FailedLoginWindow {
@@ -245,6 +250,8 @@ func (s *authService) recordFailedLogin(username string) {
 }
 
 func (s *authService) clearFailedLogin(username string) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	delete(s.failures, username)
 }
 
@@ -295,18 +302,26 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 		return "", errors.New("email not found")
 	}
 	token := util.GenerateSessionID(user.Username)
+
+	s.mutex.Lock()
 	s.resetTokens[token] = passwordResetToken{Username: user.Username, ExpiresAt: s.clock.Now().Add(util.PasswordResetTokenTTL)}
+	s.mutex.Unlock()
+
 	return token, nil
 }
 
 func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
+	s.mutex.RLock()
 	reset, exists := s.resetTokens[token]
+	s.mutex.RUnlock()
 	if !exists {
 		return errors.New("invalid token")
 	}
 
 	if s.clock.Now().After(reset.ExpiresAt) {
+		s.mutex.Lock()
 		delete(s.resetTokens, token)
+		s.mutex.Unlock()
 		return errors.New("reset token expired")
 	}
 
