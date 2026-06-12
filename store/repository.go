@@ -3,7 +3,9 @@ package store
 import (
 	"errors"
 	"sort"
+	"strings"
 	"sync"
+
 	"github.com/Prohor722/totion/model"
 )
 
@@ -67,7 +69,7 @@ func (r *InMemoryUserRepository) FindByEmail(email string) (*model.User, bool) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 	for _, u := range r.users {
-		if u.Email == email {
+		if strings.EqualFold(u.Email, email) {
 			return u, true
 		}
 	}

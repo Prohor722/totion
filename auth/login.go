@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/Prohor722/totion/model"
@@ -17,6 +18,7 @@ type SessionRepository interface {
 }
 
 type InMemorySessionRepository struct {
+	mutex    sync.RWMutex
 	sessions map[string]*model.Session
 }
 
@@ -28,15 +30,21 @@ func (r *InMemorySessionRepository) Create(session *model.Session) {
 	if session == nil {
 		return
 	}
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 	r.sessions[session.SessionID] = session
 }
 
 func (r *InMemorySessionRepository) Get(sessionID string) (*model.Session, bool) {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
 	session, ok := r.sessions[sessionID]
 	return session, ok
 }
 
 func (r *InMemorySessionRepository) Remove(sessionID string) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 	delete(r.sessions, sessionID)
 }
 
@@ -80,6 +88,7 @@ func (realClock) Now() time.Time {
 }
 
 type authService struct {
+	mutex       sync.RWMutex
 	users       store.UserRepository
 	sessions    SessionRepository
 	resetTokens map[string]passwordResetToken
