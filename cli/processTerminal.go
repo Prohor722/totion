@@ -307,7 +307,7 @@ func ProcessTerminalInputWithServices(users UserService, sessions SessionService
 		}
 		cmd, ok := commands[cmdName]
 		if !ok {
-			fmt.Println("Unknown command. Available commands: register, login, logout, info, list, delete, changepassword, exit")
+			fmt.Println("Unknown command. Available commands: register, login, logout, info, list, delete, changepassword, requestreset, resetpassword, viewprofile, updateprofile, exit")
 			continue
 		}
 		result, err := cmd.Execute(args)
@@ -321,7 +321,7 @@ func ProcessTerminalInputWithServices(users UserService, sessions SessionService
 	}
 }
 
-// ProcessTerminalInput starts the interactive CLI with the default auth service.
+// ProcessTerminalInput starts the interactive CLI with the default auth and profile services.
 func ProcessTerminalInput() {
-	ProcessTerminalInputWithAuth(auth.DefaultAuth)
+	ProcessTerminalInputWithAuth(auth.DefaultAuth, auth.NewProfileService(store.UserStore))
 }
