@@ -36,6 +36,10 @@ type PasswordResetService interface {
 	ResetPassword(token, newPassword string) error
 }
 
+type ProfileService interface {
+	UpdateProfile(username, email, bio string) error
+}
+
 type authUserService struct {
 	account  auth.RegistrationService
 	password auth.PasswordService
@@ -46,8 +50,16 @@ type authResetService struct {
 	reset auth.ForgetPasswordService
 }
 
+type authProfileService struct {
+	profile auth.ProfileService
+}
+
 func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordResetService {
 	return &authResetService{reset: reset}
+}
+
+func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
+	return &authProfileService{profile: profile}
 }
 
 func (d *authResetService) RequestReset(email string) (string, error) {
@@ -56,6 +68,10 @@ func (d *authResetService) RequestReset(email string) (string, error) {
 
 func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
+}
+
+func (d *authProfileService) UpdateProfile(username, email, bio string) error {
+	return d.profile.UpdateUserProfile(username, email, bio)
 }
 
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
