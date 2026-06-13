@@ -72,7 +72,7 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 }
 
 func (d *authProfileService) UpdateProfile(username, email, bio string) error {
-	return d.profile.UpdateUserProfile(username, email, bio)
+	return d.profile.UpdateProfile(username, email, bio)
 }
 
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
