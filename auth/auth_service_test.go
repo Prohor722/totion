@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/Prohor722/totion/store"
+	"github.com/Prohor722/totion/util"
 	"testing"
 	"time"
 )
@@ -65,7 +66,7 @@ func TestAuthService_SessionExpires(t *testing.T) {
 		t.Fatalf("Login failed: %v", err)
 	}
 
-	clock.Advance(SessionTTL + time.Minute)
+	clock.Advance(util.SessionTTL + time.Minute)
 	if _, err := auth.ValidateSession(sessionID); err == nil {
 		t.Fatal("expected session to expire")
 	}
@@ -113,7 +114,7 @@ func TestAuthService_PasswordResetTokenExpires(t *testing.T) {
 		t.Fatalf("CreatePasswordResetToken failed: %v", err)
 	}
 
-	clock.Advance(PasswordResetTokenTTL + time.Minute)
+	clock.Advance(util.PasswordResetTokenTTL + time.Minute)
 	if err := auth.ResetPasswordWithToken(token, "Another1$"); err == nil {
 		t.Fatal("expected reset token to expire")
 	}
