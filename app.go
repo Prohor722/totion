@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/Prohor722/totion/auth"
 	"github.com/Prohor722/totion/store"
 )
