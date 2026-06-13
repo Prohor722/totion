@@ -4,12 +4,16 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"regexp"
 	"strings"
+	"time"
 	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+const sessionIDSize = 16
 
 var emailRegexp = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 
@@ -29,12 +33,15 @@ func VerifyPassword(password, hash string) bool {
 }
 
 func IsStrongPassword(password string) bool {
+	password = strings.TrimSpace(password)
 	if len(password) < MinPasswordLength {
 		return false
 	}
 	var hasUpper, hasLower, hasDigit, hasSymbol bool
 	for _, ch := range password {
 		switch {
+		case unicode.IsSpace(ch):
+			return false
 		case unicode.IsUpper(ch):
 			hasUpper = true
 		case unicode.IsLower(ch):
@@ -46,17 +53,17 @@ func IsStrongPassword(password string) bool {
 		}
 	}
 	return hasUpper && hasLower && hasDigit && hasSymbol
-
 }
 
 func GenerateSessionID(username string) string {
-	buffer := make([]byte, 16)
+	buffer := make([]byte, sessionIDSize)
 	if _, err := rand.Read(buffer); err == nil {
 		return hex.EncodeToString(buffer)
 	}
 
-	fallback := sha256.Sum256([]byte(username))
-	return hex.EncodeToString(fallback[:])[:16]
+	fallbackSource := fmt.Sprintf("%s:%d", username, time.Now().UnixNano())
+	fallback := sha256.Sum256([]byte(fallbackSource))
+	return hex.EncodeToString(fallback[:])[:sessionIDSize*2]
 }
 
 func IsValidEmail(email string) bool {
