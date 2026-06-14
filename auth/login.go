@@ -206,18 +206,13 @@ func (s *authService) Logout(sessionID string) error {
 	if sessionID == "" {
 		return ErrSessionNotFound
 	}
-
-	if _, exists := s.sessions.Get(sessionID); !exists {
-		return ErrSessionNotFound
-	}
-
 	s.sessions.Remove(sessionID)
 	return nil
 }
 
 func (s *authService) ValidateSession(sessionID string) (string, error) {
 	if sessionID == "" {
-		return "", errors.New("session ID is required")
+		return "", ErrSessionIDRequired
 	}
 
 	session, exists := s.sessions.Get(sessionID)
