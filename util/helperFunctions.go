@@ -57,7 +57,7 @@ func IsStrongPassword(password string) bool {
 
 func GenerateSessionID(username string) string {
 	buffer := make([]byte, sessionIDSize)
-	if _, err := rand.Read(buffer); err == nil {
+	if n, err := rand.Read(buffer); err == nil && n == len(buffer) {
 		return hex.EncodeToString(buffer)
 	}
 

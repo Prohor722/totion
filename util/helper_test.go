@@ -1,62 +1,115 @@
 package util
 
-import "testing"
+import (
+	"encoding/hex"
+	"testing"
+)
 
 func TestIsValidEmail(t *testing.T) {
-	valid := "user@example.com"
-	if !IsValidEmail(valid) {
-		t.Fatalf("expected valid email for %s", valid)
-	}
-	plusAddr := "user+tag@example.com"
-	if !IsValidEmail(plusAddr) {
-		t.Fatalf("expected valid email for %s", plusAddr)
+	t.Parallel()
+
+	validCases := []string{
+		"user@example.com",
+		"user+tag@example.com",
+		"firstname.lastname@example.co.uk",
 	}
 
-	invalids := []string{"userexample.com", "user@ example.com", "user@com", "@example.com"}
-	for _, input := range invalids {
-		if IsValidEmail(input) {
-			t.Fatalf("expected invalid email for %s", input)
-		}
+	for _, email := range validCases {
+		email := email
+		t.Run(email, func(t *testing.T) {
+			t.Parallel()
+			if !IsValidEmail(email) {
+				t.Fatalf("expected valid email for %s", email)
+			}
+		})
+	}
+
+	invalidCases := []string{
+		"userexample.com",
+		"user@ example.com",
+		"user@com",
+		"@example.com",
+		"user@.com",
+		" user@example.com ",
+	}
+
+	for _, email := range invalidCases {
+		email := email
+		t.Run(email, func(t *testing.T) {
+			t.Parallel()
+			if IsValidEmail(email) {
+				t.Fatalf("expected invalid email for %s", email)
+			}
+		})
 	}
 }
 
-func TestIsStrongPasswordAndHashVerify(t *testing.T) {
-	pass := "Abcdef1!"
-	if !IsStrongPassword(pass) {
-		t.Fatalf("expected password to be strong: %s", pass)
+func TestIsStrongPassword(t *testing.T) {
+	t.Parallel()
+
+	valid := "Abcdef1!"
+	if !IsStrongPassword(valid) {
+		t.Fatalf("expected password to be strong: %s", valid)
 	}
 
-	hash, err := HashPassword(pass)
+	invalidCases := []struct {
+		name     string
+		password string
+	}{
+		{"too short", "Ab1!"},
+		{"missing upper", "abcdef1!"},
+		{"missing lower", "ABCDEF1!"},
+		{"missing digit", "Abcdefg!"},
+		{"missing symbol", "Abcdef12"},
+		{"contains whitespace", "Abc 1!ef"},
+	}
+
+	for _, tc := range invalidCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if IsStrongPassword(tc.password) {
+				t.Fatalf("expected password to be weak: %s", tc.password)
+			}
+		})
+	}
+}
+
+func TestHashAndVerifyPassword(t *testing.T) {
+	t.Parallel()
+
+	password := "Abcdef1!"
+	hash, err := HashPassword(password)
 	if err != nil {
 		t.Fatalf("HashPassword returned error: %v", err)
 	}
 
-	if !VerifyPassword(pass, hash) {
-		t.Fatalf("VerifyPassword failed for valid password/hash")
+	if !VerifyPassword(password, hash) {
+		t.Fatal("expected VerifyPassword to validate the correct password")
 	}
 
 	if VerifyPassword("wrong", hash) {
-		t.Fatalf("VerifyPassword succeeded for wrong password")
-	}
-}
-
-func TestIsStrongPasswordRejectsWhitespace(t *testing.T) {
-	if IsStrongPassword("Abc 1!ef") {
-		t.Fatal("expected password with spaces to be rejected")
+		t.Fatal("expected VerifyPassword to reject an incorrect password")
 	}
 }
 
 func TestGenerateSessionID(t *testing.T) {
-	id1 := GenerateSessionID("alice")
-	id2 := GenerateSessionID("bob")
+	t.Parallel()
 
-	if id1 == "" || id2 == "" {
-		t.Fatal("expected non-empty session IDs")
-	}
-	if id1 == id2 {
-		t.Fatal("expected generated session IDs to be unique")
-	}
-	if len(id1) != sessionIDSize*2 {
-		t.Fatalf("expected session ID length %d, got %d", sessionIDSize*2, len(id1))
+	ids := make(map[string]struct{})
+	for i := 0; i < 10; i++ {
+		id := GenerateSessionID("user")
+		if id == "" {
+			t.Fatal("expected non-empty session ID")
+		}
+		if len(id) != sessionIDSize*2 {
+			t.Fatalf("expected session ID length %d, got %d", sessionIDSize*2, len(id))
+		}
+		if _, err := hex.DecodeString(id); err != nil {
+			t.Fatalf("expected session ID to be valid hex, got %q: %v", id, err)
+		}
+		if _, exists := ids[id]; exists {
+			t.Fatal("expected generated session IDs to be unique")
+		}
+		ids[id] = struct{}{}
 	}
 }
