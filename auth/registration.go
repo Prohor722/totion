@@ -47,6 +47,14 @@ func (m *defaultAuthManager) LogoutUser(sessionID string) error {
 // authManager is the default global instance.
 var authManager AuthManager = NewDefaultAuthManager(DefaultAuth, DefaultAuth)
 
+// SetAuthManager replaces the package-level AuthManager used by legacy helpers.
+func SetAuthManager(manager AuthManager) {
+	if manager == nil {
+		return
+	}
+	authManager = manager
+}
+
 // RegisterUser creates a new user account using the auth service.
 func RegisterUser(username, email, password string) error {
 	return authManager.RegisterUser(username, email, password)

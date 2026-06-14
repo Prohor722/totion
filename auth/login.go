@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -125,28 +126,35 @@ func NewAuthServiceWithClock(users store.UserRepository, sessions SessionReposit
 var DefaultAuth AuthService = NewAuthService(store.UserStore, NewInMemorySessionRepository())
 
 func (s *authService) Register(username, email, password string) error {
+	username = strings.TrimSpace(username)
+	email = strings.TrimSpace(email)
+
 	if username == "" || email == "" || password == "" {
-		return errors.New("all fields are required")
+		return ErrAllFieldsRequired
+	}
+
+	if strings.ContainsAny(username, " \t\n\r") {
+		return errors.New("username cannot contain whitespace")
 	}
 
 	if len(username) < 3 {
-		return errors.New("username must be at least 3 characters")
+		return ErrUsernameTooShort
 	}
 
 	if !util.IsStrongPassword(password) {
-		return fmt.Errorf("password must be at least %d characters and include upper, lower, digit, and symbol", util.MinPasswordLength)
+		return ErrWeakPassword
 	}
 
 	if !util.IsValidEmail(email) {
-		return errors.New("invalid email format")
+		return ErrInvalidEmail
 	}
 
 	if s.users.Exists(username) {
-		return errors.New("username already exists")
+		return ErrUsernameAlreadyExists
 	}
 
 	if _, found := s.users.FindByEmail(email); found {
-		return errors.New("email already registered")
+		return ErrEmailAlreadyRegistered
 	}
 
 	passwordHash, err := util.HashPassword(password)
@@ -166,18 +174,19 @@ func (s *authService) Register(username, email, password string) error {
 }
 
 func (s *authService) Login(username, password string) (string, error) {
+	username = strings.TrimSpace(username)
 	if username == "" || password == "" {
-		return "", errors.New("username and password are required")
+		return "", ErrAllFieldsRequired
 	}
 
 	if s.isAccountLocked(username) {
-		return "", errors.New("account temporarily locked due to failed login attempts")
+		return "", ErrAccountLocked
 	}
 
 	user, exists := s.users.Get(username)
 	if !exists || !util.VerifyPassword(password, user.PasswordHash) {
 		s.recordFailedLogin(username)
-		return "", errors.New("invalid username or password")
+		return "", ErrInvalidCredentials
 	}
 
 	s.clearFailedLogin(username)
@@ -194,12 +203,14 @@ func (s *authService) Login(username, password string) (string, error) {
 }
 
 func (s *authService) Logout(sessionID string) error {
-	session, exists := s.sessions.Get(sessionID)
-	if !exists || !session.IsActive {
-		return errors.New("session not found")
+	if sessionID == "" {
+		return ErrSessionNotFound
 	}
 
-	session.IsActive = false
+	if _, exists := s.sessions.Get(sessionID); !exists {
+		return ErrSessionNotFound
+	}
+
 	s.sessions.Remove(sessionID)
 	return nil
 }
@@ -211,12 +222,12 @@ func (s *authService) ValidateSession(sessionID string) (string, error) {
 
 	session, exists := s.sessions.Get(sessionID)
 	if !exists || !session.IsActive {
-		return "", errors.New("invalid or expired session")
+		return "", ErrInvalidOrExpiredSession
 	}
 
 	if s.clock.Now().After(session.ExpiresAt) {
 		s.sessions.Remove(sessionID)
-		return "", errors.New("session expired")
+		return "", ErrSessionExpired
 	}
 
 	return session.Username, nil
@@ -297,6 +308,11 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 }
 
 func (s *authService) CreatePasswordResetToken(email string) (string, error) {
+	email = strings.TrimSpace(email)
+	if email == "" {
+		return "", ErrInvalidEmail
+	}
+
 	user, exists := s.users.FindByEmail(email)
 	if !exists {
 		return "", errors.New("email not found")

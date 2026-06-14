@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"github.com/Prohor722/totion/store"
-	"github.com/Prohor722/totion/util"
 	"testing"
 	"time"
+
+	"github.com/Prohor722/totion/store"
+	"github.com/Prohor722/totion/util"
 )
 
 type testClock struct {
@@ -48,6 +49,54 @@ func TestAuthService_RegisterLoginLogoutValidate(t *testing.T) {
 
 	if _, err := auth.ValidateSession(sessionID); err == nil {
 		t.Fatal("expected session validation to fail after logout")
+	}
+}
+
+func TestAuthService_RegisterTrimmedCredentials(t *testing.T) {
+	clock := &testClock{now: time.Now()}
+	users := store.NewInMemoryUserRepository()
+	sessions := NewInMemorySessionRepository()
+	auth := NewAuthServiceWithClock(users, sessions, clock)
+
+	if err := auth.Register("  alice  ", " alice@example.com ", "Secure1!"); err != nil {
+		t.Fatalf("Register failed: %v", err)
+	}
+
+	sessionID, err := auth.Login(" alice ", "Secure1!")
+	if err != nil {
+		t.Fatalf("Login failed: %v", err)
+	}
+
+	username, err := auth.ValidateSession(sessionID)
+	if err != nil {
+		t.Fatalf("ValidateSession failed: %v", err)
+	}
+	if username != "alice" {
+		t.Fatalf("expected username alice, got %s", username)
+	}
+}
+
+func TestAuthService_LogoutIsIdempotent(t *testing.T) {
+	clock := &testClock{now: time.Now()}
+	users := store.NewInMemoryUserRepository()
+	sessions := NewInMemorySessionRepository()
+	auth := NewAuthServiceWithClock(users, sessions, clock)
+
+	if err := auth.Register("alice", "alice@example.com", "Secure1!"); err != nil {
+		t.Fatalf("Register failed: %v", err)
+	}
+
+	sessionID, err := auth.Login("alice", "Secure1!")
+	if err != nil {
+		t.Fatalf("Login failed: %v", err)
+	}
+
+	if err := auth.Logout(sessionID); err != nil {
+		t.Fatalf("Logout failed: %v", err)
+	}
+
+	if err := auth.Logout(sessionID); err != nil {
+		t.Fatalf("expected second logout to be idempotent, got %v", err)
 	}
 }
 
