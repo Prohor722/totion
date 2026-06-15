@@ -12,6 +12,7 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 	ErrUserIsNil    = errors.New("user is nil")
 	ErrInvalidInput = errors.New("invalid input")
+	ErrUsernameContainsWhitespace = errors.New("username cannot contain whitespace")
 
 	ErrAllFieldsRequired        = errors.New("all fields are required")
 	ErrUsernameTooShort         = errors.New("username must be at least 3 characters")

@@ -134,7 +134,7 @@ func (s *authService) Register(username, email, password string) error {
 	}
 
 	if strings.ContainsAny(username, " \t\n\r") {
-		return errors.New("username cannot contain whitespace")
+		return ErrUsernameContainsWhitespace
 	}
 
 	if len(username) < 3 {
@@ -204,7 +204,7 @@ func (s *authService) Login(username, password string) (string, error) {
 
 func (s *authService) Logout(sessionID string) error {
 	if sessionID == "" {
-		return ErrSessionNotFound
+		return ErrSessionIDRequired
 	}
 	s.sessions.Remove(sessionID)
 	return nil
