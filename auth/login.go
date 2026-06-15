@@ -269,7 +269,7 @@ func (s *authService) GetUserInfo(sessionID string) (*model.User, error) {
 
 	user, exists := s.users.Get(username)
 	if !exists {
-		return nil, errors.New("user not found")
+		return nil, ErrUserNotFound
 	}
 
 	return user, nil
@@ -283,11 +283,11 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 
 	user, exists := s.users.Get(username)
 	if !exists {
-		return errors.New("user not found")
+		return ErrUserNotFound
 	}
 
 	if !util.VerifyPassword(oldPassword, user.PasswordHash) {
-		return errors.New("current password is incorrect")
+		return ErrCurrentPasswordIncorrect
 	}
 
 	if !util.IsStrongPassword(newPassword) {
@@ -310,7 +310,7 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 
 	user, exists := s.users.FindByEmail(email)
 	if !exists {
-		return "", errors.New("email not found")
+		return "", ErrEmailNotFound
 	}
 	token := util.GenerateSessionID(user.Username)
 
@@ -326,14 +326,14 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 	reset, exists := s.resetTokens[token]
 	s.mutex.RUnlock()
 	if !exists {
-		return errors.New("invalid token")
+		return ErrInvalidToken
 	}
 
 	if s.clock.Now().After(reset.ExpiresAt) {
 		s.mutex.Lock()
 		delete(s.resetTokens, token)
 		s.mutex.Unlock()
-		return errors.New("reset token expired")
+		return ErrResetTokenExpired
 	}
 
 	if !util.IsStrongPassword(newPassword) {
@@ -342,7 +342,7 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 
 	user, exists := s.users.Get(reset.Username)
 	if !exists {
-		return errors.New("user not found")
+		return ErrUserNotFound
 	}
 
 	passwordHash, err := util.HashPassword(newPassword)
