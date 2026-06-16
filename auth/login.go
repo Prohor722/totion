@@ -215,7 +215,7 @@ func (s *authService) ValidateSession(sessionID string) (string, error) {
 	}
 
 	session, exists := s.sessions.Get(sessionID)
-	if !exists || !session.IsActive {
+	if !exists || session == nil || !session.IsActive {
 		return "", ErrInvalidOrExpiredSession
 	}
 
@@ -290,7 +290,7 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 	}
 
 	if !util.IsStrongPassword(newPassword) {
-		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", util.MinPasswordLength)
+		return ErrWeakPassword
 	}
 
 	passwordHash, err := util.HashPassword(newPassword)
@@ -336,7 +336,7 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 	}
 
 	if !util.IsStrongPassword(newPassword) {
-		return fmt.Errorf("new password must be at least %d characters and include upper, lower, digit, and symbol", util.MinPasswordLength)
+		return ErrWeakPassword
 	}
 
 	user, exists := s.users.Get(reset.Username)
