@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+
 	"github.com/Prohor722/totion/auth"
 	"github.com/Prohor722/totion/model"
 )
