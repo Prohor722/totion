@@ -5,6 +5,7 @@ import (
 
 	"github.com/Prohor722/totion/auth"
 	"github.com/Prohor722/totion/cli"
+	"github.com/Prohor722/totion/internal/app"
 	"github.com/Prohor722/totion/store"
 )
 
@@ -18,6 +19,6 @@ func main() {
 		return
 	}
 
-	app := NewAppWithAuth(authService, userRepo)
-	app.RunDemo()
+	application := app.NewAppWithAuth(authService, userRepo)
+	application.RunDemo()
 }
