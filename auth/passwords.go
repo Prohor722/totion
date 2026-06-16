@@ -3,7 +3,6 @@ package auth
 import (
     "strings"
 
-    "github.com/Prohor722/totion/model"
     "github.com/Prohor722/totion/util"
 )
 
