@@ -12,6 +12,8 @@ import (
 	"github.com/Prohor722/totion/store"
 )
 
+const genericPasswordResetResponse = "If an account with that email exists, password reset instructions have been sent."
+
 // Command represents a terminal action
 type Command interface {
 	Execute(args []string) (string, error)
@@ -216,12 +218,12 @@ func (c *requestResetCommand) Execute(args []string) (string, error) {
 	_, err := c.reset.RequestReset(args[1])
 	if err != nil {
 		if errors.Is(err, auth.ErrEmailNotFound) || errors.Is(err, auth.ErrTooManyResetRequests) {
-			return "If an account with that email exists, password reset instructions have been sent.", nil
+			return genericPasswordResetResponse, nil
 		}
 		return "", err
 	}
 
-	return "If an account with that email exists, password reset instructions have been sent.", nil
+	return genericPasswordResetResponse, nil
 }
 
 type resetPasswordCommand struct{ reset PasswordResetService }
