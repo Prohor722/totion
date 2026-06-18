@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -67,5 +68,17 @@ func GenerateSessionID(username string) string {
 }
 
 func IsValidEmail(email string) bool {
-	return emailRegexp.MatchString(email)
+	return emailRegexp.MatchString(strings.TrimSpace(email))
+}
+
+func IsValidWebsite(website string) bool {
+	website = strings.TrimSpace(website)
+	if website == "" {
+		return false
+	}
+	parsed, err := url.ParseRequestURI(website)
+	if err != nil {
+		return false
+	}
+	return parsed.Scheme == "http" || parsed.Scheme == "https"
 }
