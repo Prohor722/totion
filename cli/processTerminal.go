@@ -40,7 +40,7 @@ type PasswordResetService interface {
 }
 
 type ProfileService interface {
-	UpdateProfile(username, email, bio, website string) error
+	UpdateProfile(username string, update auth.ProfileUpdate) error
 }
 
 type authUserService struct {
@@ -73,8 +73,8 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
 
-func (d *authProfileService) UpdateProfile(username, email, bio, website string) error {
-	return d.profile.UpdateProfile(username, email, bio, website)
+func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
+	return d.profile.UpdateProfile(username, update)
 }
 
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
@@ -271,11 +271,18 @@ func (c *updateProfileCommand) Execute(args []string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	website := ""
+
+	update := auth.ProfileUpdate{}
+	email := args[2]
+	update.Email = &email
+	bio := args[3]
+	update.Bio = &bio
 	if len(args) == 5 {
-		website = args[4]
+		website := args[4]
+		update.Website = &website
 	}
-	if err := c.profiles.UpdateProfile(user.Username, args[2], args[3], website); err != nil {
+
+	if err := c.profiles.UpdateProfile(user.Username, update); err != nil {
 		return "", err
 	}
 	return "Profile updated successfully", nil
