@@ -189,3 +189,26 @@ func TestAuthService_PasswordResetRequestLimit(t *testing.T) {
 		t.Fatalf("expected too many reset requests error, got %v", err)
 	}
 }
+
+func TestAuthService_PasswordResetEmailNormalization(t *testing.T) {
+	clock := &testClock{now: time.Now()}
+	users := store.NewInMemoryUserRepository()
+	sessions := NewInMemorySessionRepository()
+	auth := NewAuthServiceWithClock(users, sessions, clock)
+
+	if err := auth.Register("gina", "GINA@Example.COM", "Reset4#A"); err != nil {
+		t.Fatalf("Register failed: %v", err)
+	}
+
+	token, err := auth.CreatePasswordResetToken(" gina@example.com ")
+	if err != nil {
+		t.Fatalf("CreatePasswordResetToken failed: %v", err)
+	}
+	if token == "" {
+		t.Fatal("expected reset token")
+	}
+
+	if err := auth.ResetPasswordWithToken(token, "NewPass2$"); err != nil {
+		t.Fatalf("ResetPasswordWithToken failed: %v", err)
+	}
+}

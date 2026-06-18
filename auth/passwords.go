@@ -44,6 +44,25 @@ func hashToken(token string) string {
 	return hex.EncodeToString(hash[:])
 }
 
+func (s *authService) getResetToken(hash string) (passwordResetToken, bool) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	reset, exists := s.resetTokens[hash]
+	return reset, exists
+}
+
+func (s *authService) saveResetToken(hash string, token passwordResetToken) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.resetTokens[hash] = token
+}
+
+func (s *authService) deleteResetToken(hash string) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	delete(s.resetTokens, hash)
+}
+
 func (s *authService) recordPasswordResetRequest(email string) error {
 	now := s.clock.Now()
 
@@ -86,9 +105,7 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 	token := util.GenerateSessionID(user.Username)
 	hash := hashToken(token)
 
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.resetTokens[hash] = passwordResetToken{Username: user.Username, ExpiresAt: s.clock.Now().Add(util.PasswordResetTokenTTL)}
+	s.saveResetToken(hash, passwordResetToken{Username: user.Username, ExpiresAt: s.clock.Now().Add(util.PasswordResetTokenTTL)})
 
 	return token, nil
 }
@@ -96,17 +113,13 @@ func (s *authService) CreatePasswordResetToken(email string) (string, error) {
 func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 	hash := hashToken(token)
 
-	s.mutex.RLock()
-	reset, exists := s.resetTokens[hash]
-	s.mutex.RUnlock()
+	reset, exists := s.getResetToken(hash)
 	if !exists {
 		return ErrInvalidToken
 	}
 
 	if s.clock.Now().After(reset.ExpiresAt) {
-		s.mutex.Lock()
-		delete(s.resetTokens, hash)
-		s.mutex.Unlock()
+		s.deleteResetToken(hash)
 		return ErrResetTokenExpired
 	}
 
@@ -125,8 +138,6 @@ func (s *authService) ResetPasswordWithToken(token, newPassword string) error {
 	}
 	user.PasswordHash = passwordHash
 
-	s.mutex.Lock()
-	delete(s.resetTokens, hash)
-	s.mutex.Unlock()
+	s.deleteResetToken(hash)
 	return nil
 }
