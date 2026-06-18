@@ -8,7 +8,7 @@ import (
 
 type ProfileService interface {
 	GetProfile(username string) (*model.UserProfile, error)
-	UpdateProfile(username, email, bio string) error
+	UpdateProfile(username, email, bio, website string) error
 }
 
 // profileService implements ProfileService using a UserRepository.
@@ -32,10 +32,11 @@ func (s *profileService) GetProfile(username string) (*model.UserProfile, error)
 		Username: user.Username,
 		Email:    user.Email,
 		Bio:      user.Profile.Bio,
+		Website:  user.Profile.Website,
 	}, nil
 }
 
-func (s *profileService) UpdateProfile(username, email, bio string) error {
+func (s *profileService) UpdateProfile(username, email, bio, website string) error {
 	user, exists := s.users.Get(username)
 	if !exists {
 		return ErrUserNotFound
@@ -63,12 +64,19 @@ func (s *profileService) UpdateProfile(username, email, bio string) error {
 		user.Profile.Bio = bio
 	}
 
+	if website != "" {
+		if user.Profile == nil {
+			user.Profile = &model.UserProfile{Username: user.Username, Email: user.Email}
+		}
+		user.Profile.Website = website
+	}
+
 	return nil
 }
 
 type ProfileManager interface {
 	GetUserProfile(username string) (*model.UserProfile, error)
-	UpdateUserProfile(username, email, bio string) error
+	UpdateUserProfile(username, email, bio, website string) error
 }
 
 type defaultProfileManager struct {
@@ -83,6 +91,6 @@ func (m *defaultProfileManager) GetUserProfile(username string) (*model.UserProf
 	return m.service.GetProfile(username)
 }
 
-func (m *defaultProfileManager) UpdateUserProfile(username, email, bio string) error {
-	return m.service.UpdateProfile(username, email, bio)
+func (m *defaultProfileManager) UpdateUserProfile(username, email, bio, website string) error {
+	return m.service.UpdateProfile(username, email, bio, website)
 }

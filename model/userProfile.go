@@ -11,4 +11,5 @@ type UserProfile struct {
 	Username string
 	Email    string
 	Bio      string
+	Website  string
 }

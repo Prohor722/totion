@@ -40,7 +40,7 @@ type PasswordResetService interface {
 }
 
 type ProfileService interface {
-	UpdateProfile(username, email, bio string) error
+	UpdateProfile(username, email, bio, website string) error
 }
 
 type authUserService struct {
@@ -260,14 +260,18 @@ type updateProfileCommand struct {
 }
 
 func (c *updateProfileCommand) Execute(args []string) (string, error) {
-	if len(args) != 4 {
-		return "", errors.New("Usage: updateprofile <sessionID> <email> <bio>")
+	if len(args) != 4 && len(args) != 5 {
+		return "", errors.New("Usage: updateprofile <sessionID> <email> <bio> [website]")
 	}
 	user, err := c.users.GetInfo(args[1])
 	if err != nil {
 		return "", err
 	}
-	if err := c.profiles.UpdateProfile(user.Username, args[2], args[3]); err != nil {
+	website := ""
+	if len(args) == 5 {
+		website = args[4]
+	}
+	if err := c.profiles.UpdateProfile(user.Username, args[2], args[3], website); err != nil {
 		return "", err
 	}
 	return "Profile updated successfully", nil
