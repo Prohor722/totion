@@ -212,7 +212,16 @@ func (c *requestResetCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
 		return "", errors.New("Usage: requestreset <email>")
 	}
-	return c.reset.RequestReset(args[1])
+
+	_, err := c.reset.RequestReset(args[1])
+	if err != nil {
+		if errors.Is(err, auth.ErrEmailNotFound) || errors.Is(err, auth.ErrTooManyResetRequests) {
+			return "If an account with that email exists, password reset instructions have been sent.", nil
+		}
+		return "", err
+	}
+
+	return "If an account with that email exists, password reset instructions have been sent.", nil
 }
 
 type resetPasswordCommand struct{ reset PasswordResetService }
