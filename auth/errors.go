@@ -28,6 +28,7 @@ var (
 	ErrCurrentPasswordIncorrect = errors.New("current password is incorrect")
 	ErrInvalidToken             = errors.New("invalid token")
 	ErrResetTokenExpired        = errors.New("reset token expired")
+	ErrTooManyResetRequests     = errors.New("too many password reset requests, please try later")
 	ErrEmailNotFound            = errors.New("email not found")
 	ErrSessionIDRequired        = errors.New("session ID is required")
 )

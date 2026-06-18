@@ -42,11 +42,12 @@ type AuthService interface {
 // authService is the concrete implementation behind the AuthService interface.
 type authService struct {
 	mutex       sync.RWMutex
-	users       store.UserRepository
-	sessions    SessionRepository
-	resetTokens map[string]passwordResetToken
-	failures    map[string]failedLogin
-	clock       Clock
+	users         store.UserRepository
+	sessions      SessionRepository
+	resetTokens   map[string]passwordResetToken
+	resetRequests map[string]passwordResetRequest
+	failures      map[string]failedLogin
+	clock         Clock
 }
 
 type realClock struct{}
@@ -61,11 +62,12 @@ func NewAuthService(users store.UserRepository, sessions SessionRepository) Auth
 // NewAuthServiceWithClock constructs an AuthService with a testable clock.
 func NewAuthServiceWithClock(users store.UserRepository, sessions SessionRepository, clock Clock) AuthService {
 	return &authService{
-		users:       users,
-		sessions:    sessions,
-		resetTokens: make(map[string]passwordResetToken),
-		failures:    make(map[string]failedLogin),
-		clock:       clock,
+		users:         users,
+		sessions:      sessions,
+		resetTokens:   make(map[string]passwordResetToken),
+		resetRequests: make(map[string]passwordResetRequest),
+		failures:      make(map[string]failedLogin),
+		clock:         clock,
 	}
 }
 

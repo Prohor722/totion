@@ -13,6 +13,11 @@ type passwordResetToken struct {
 	ExpiresAt time.Time
 }
 
+type passwordResetRequest struct {
+	Count      int
+	WindowEnds time.Time
+}
+
 // failedLogin tracks failed attempts and lockout windows for a user.
 type failedLogin struct {
 	Count       int
