@@ -3,7 +3,6 @@ package auth
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strings"
 
 	"github.com/Prohor722/totion/util"
 )

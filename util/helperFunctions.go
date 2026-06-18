@@ -68,7 +68,7 @@ func GenerateSessionID(username string) string {
 }
 
 func IsValidEmail(email string) bool {
-	return emailRegexp.MatchString(strings.TrimSpace(email))
+	return emailRegexp.MatchString(email)
 }
 
 func NormalizeEmail(email string) string {
