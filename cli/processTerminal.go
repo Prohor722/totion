@@ -251,7 +251,11 @@ func (c *viewProfileCommand) Execute(args []string) (string, error) {
 	if user.Profile == nil {
 		return "Profile not available", nil
 	}
-	return fmt.Sprintf("Profile for %s:\n  Email: %s\n  Bio: %s", user.Username, user.Profile.Email, user.Profile.Bio), nil
+	result := fmt.Sprintf("Profile for %s:\n  Email: %s\n  Bio: %s", user.Username, user.Profile.Email, user.Profile.Bio)
+	if user.Profile.Website != "" {
+		result += fmt.Sprintf("\n  Website: %s", user.Profile.Website)
+	}
+	return result, nil
 }
 
 type updateProfileCommand struct {
