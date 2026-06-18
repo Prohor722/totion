@@ -73,8 +73,8 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
 
-func (d *authProfileService) UpdateProfile(username, email, bio string) error {
-	return d.profile.UpdateProfile(username, email, bio)
+func (d *authProfileService) UpdateProfile(username, email, bio, website string) error {
+	return d.profile.UpdateProfile(username, email, bio, website)
 }
 
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {

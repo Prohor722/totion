@@ -103,7 +103,7 @@ func (a *App) RunDemo() {
 		fmt.Printf("Current profile: %+v\n", profile)
 	}
 
-	if err := a.profileManager.UpdateUserProfile("john_doe", "john.new@example.com", "Updated bio for John"); err != nil {
+	if err := a.profileManager.UpdateUserProfile("john_doe", "john.new@example.com", "Updated bio for John", "https://john.example.com"); err != nil {
 		fmt.Println("UpdateUserProfile error:", err)
 	} else {
 		newProfile, _ := a.profileManager.GetUserProfile("john_doe")
