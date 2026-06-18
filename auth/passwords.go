@@ -34,7 +34,6 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 	return nil
 }
 
-
 func hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:])
