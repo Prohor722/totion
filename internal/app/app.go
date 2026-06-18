@@ -32,6 +32,10 @@ func NewAppWithAuth(authService auth.AuthService, userRepo store.UserRepository)
 	)
 }
 
+func ptrString(value string) *string {
+	return &value
+}
+
 func (a *App) RunDemo() {
 	fmt.Println("Welcome to totion app")
 	fmt.Println("--- Login System Demo ---")
@@ -103,7 +107,12 @@ func (a *App) RunDemo() {
 		fmt.Printf("Current profile: %+v\n", profile)
 	}
 
-	if err := a.profileManager.UpdateUserProfile("john_doe", "john.new@example.com", "Updated bio for John", "https://john.example.com"); err != nil {
+	update := auth.ProfileUpdate{
+		Email:   ptrString("john.new@example.com"),
+		Bio:     ptrString("Updated bio for John"),
+		Website: ptrString("https://john.example.com"),
+	}
+	if err := a.profileManager.UpdateUserProfile("john_doe", update); err != nil {
 		fmt.Println("UpdateUserProfile error:", err)
 	} else {
 		newProfile, _ := a.profileManager.GetUserProfile("john_doe")
