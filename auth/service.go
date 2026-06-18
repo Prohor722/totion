@@ -41,7 +41,7 @@ type AuthService interface {
 
 // authService is the concrete implementation behind the AuthService interface.
 type authService struct {
-	mutex       sync.RWMutex
+	mutex         sync.RWMutex
 	users         store.UserRepository
 	sessions      SessionRepository
 	resetTokens   map[string]passwordResetToken
