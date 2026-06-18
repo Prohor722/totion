@@ -58,7 +58,7 @@ func (s *profileService) UpdateProfile(username string, update ProfileUpdate) er
 	}
 
 	if update.Email != nil {
-		email := strings.TrimSpace(*update.Email)
+		email := util.NormalizeEmail(*update.Email)
 		if !util.IsValidEmail(email) {
 			return ErrInvalidInput
 		}

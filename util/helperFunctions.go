@@ -71,6 +71,10 @@ func IsValidEmail(email string) bool {
 	return emailRegexp.MatchString(strings.TrimSpace(email))
 }
 
+func NormalizeEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
+}
+
 func IsValidWebsite(website string) bool {
 	website = strings.TrimSpace(website)
 	if website == "" {

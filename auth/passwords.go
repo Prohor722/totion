@@ -35,9 +35,6 @@ func (s *authService) ChangePassword(sessionID, oldPassword, newPassword string)
 	return nil
 }
 
-func normalizeEmail(email string) string {
-	return strings.ToLower(strings.TrimSpace(email))
-}
 
 func hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
@@ -85,7 +82,7 @@ func (s *authService) recordPasswordResetRequest(email string) error {
 }
 
 func (s *authService) CreatePasswordResetToken(email string) (string, error) {
-	email = normalizeEmail(email)
+	email = util.NormalizeEmail(email)
 	if email == "" {
 		return "", ErrInvalidEmail
 	}
