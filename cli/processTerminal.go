@@ -17,37 +17,6 @@ const genericPasswordResetResponse = "If an account with that email exists, pass
 // Command represents a terminal action
 type Command interface {
 	Execute(args []string) (string, error)
-	Usage() string
-}
-
-var commandOrder = []string{
-	"register",
-	"login",
-	"logout",
-	"info",
-	"list",
-	"delete",
-	"changepassword",
-	"requestreset",
-	"resetpassword",
-	"viewprofile",
-	"updateprofile",
-	"help",
-}
-
-func buildCommandsUsage(commands map[string]Command) string {
-	var b strings.Builder
-	b.WriteString("Available commands:\n")
-	for _, name := range commandOrder {
-		if cmd, ok := commands[name]; ok {
-			b.WriteString("  ")
-			b.WriteString(name)
-			b.WriteString(" - ")
-			b.WriteString(cmd.Usage())
-			b.WriteByte('\n')
-		}
-	}
-	return b.String()
 }
 
 // UserService defines user-related operations used by commands
