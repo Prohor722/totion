@@ -111,6 +111,7 @@ func (d *authSessionService) Logout(s string) error {
 // Concrete command implementations
 type registerCommand struct{ users UserService }
 
+
 type loginCommand struct{ sessions SessionService }
 
 func (c *loginCommand) Execute(args []string) (string, error) {
