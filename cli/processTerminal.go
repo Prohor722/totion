@@ -123,6 +123,7 @@ func (c *loginCommand) Execute(args []string) (string, error) {
 
 type logoutCommand struct{ sessions SessionService }
 
+
 type infoCommand struct{ users UserService }
 
 func (c *infoCommand) Execute(args []string) (string, error) {
