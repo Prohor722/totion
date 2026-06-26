@@ -167,8 +167,6 @@ func (c *deleteCommand) Execute(args []string) (string, error) {
 	return "User deleted successfully", nil
 }
 
-type changePasswordCommand struct{ users UserService }
-
 func (c *changePasswordCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 {
 		return "", errors.New("Usage: changepassword <sessionID> <oldPassword> <newPassword>")
