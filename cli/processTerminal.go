@@ -153,36 +153,7 @@ func (c *logoutCommand) Execute(args []string) (string, error) {
 
 type infoCommand struct{ users UserService }
 
-func (c *infoCommand) Execute(args []string) (string, error) {
-	if len(args) != 2 {
-		return "", errors.New("Usage: info <sessionID>")
-	}
-	user, err := c.users.GetInfo(args[1])
-	if err != nil {
-		return "", err
-	}
-	if user == nil {
-		return "", errors.New("user not found")
-	}
-	return fmt.Sprintf("Username: %s, Email: %s", user.Username, user.Email), nil
-}
-
 type listCommand struct{ users UserService }
-
-func (c *listCommand) Execute(args []string) (string, error) {
-	users := c.users.ListAll()
-	if len(users) == 0 {
-		return "No registered users.", nil
-	}
-	var b strings.Builder
-	b.WriteString("Registered users:\n")
-	for _, u := range users {
-		b.WriteString("  - ")
-		b.WriteString(u)
-		b.WriteByte('\n')
-	}
-	return b.String(), nil
-}
 
 type deleteCommand struct{ users UserService }
 
