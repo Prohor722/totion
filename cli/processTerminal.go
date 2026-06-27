@@ -168,19 +168,6 @@ func (c *infoCommand) Execute(args []string) (string, error) {
 }
 
 
-type deleteCommand struct{ users UserService }
-
-type changePasswordCommand struct{ users UserService }
-
-func (c *changePasswordCommand) Execute(args []string) (string, error) {
-	if len(args) != 4 {
-		return "", errors.New("Usage: changepassword <sessionID> <oldPassword> <newPassword>")
-	}
-	if err := c.users.ChangePassword(args[1], args[2], args[3]); err != nil {
-		return "", err
-	}
-	return "Password changed successfully", nil
-}
 
 type requestResetCommand struct{ reset PasswordResetService }
 
