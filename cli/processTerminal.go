@@ -245,31 +245,6 @@ type updateProfileCommand struct {
 	profiles ProfileService
 }
 
-func (c *updateProfileCommand) Execute(args []string) (string, error) {
-	if len(args) != 4 && len(args) != 5 {
-		return "", errors.New("Usage: updateprofile <sessionID> <email> <bio> [website]")
-	}
-	user, err := c.users.GetInfo(args[1])
-	if err != nil {
-		return "", err
-	}
-
-	update := auth.ProfileUpdate{}
-	email := args[2]
-	update.Email = &email
-	bio := args[3]
-	update.Bio = &bio
-	if len(args) == 5 {
-		website := args[4]
-		update.Website = &website
-	}
-
-	if err := c.profiles.UpdateProfile(user.Username, update); err != nil {
-		return "", err
-	}
-	return "Profile updated successfully", nil
-}
-
 // ProcessTerminalInput handles user input from the terminal using a small, testable processor
 func ProcessTerminalInputWithAuth(authService auth.AuthService, profileService auth.ProfileService) {
 	ProcessTerminalInputWithServices(
