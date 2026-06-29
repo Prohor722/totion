@@ -288,12 +288,3 @@ func (c *updateProfileCommand) Execute(args []string) (string, error) {
 	return "Profile updated successfully", nil
 }
 
-// ProcessTerminalInput handles user input from the terminal using a small, testable processor
-func ProcessTerminalInputWithAuth(authService auth.AuthService, profileService auth.ProfileService) {
-	ProcessTerminalInputWithServices(
-		NewTerminalUserService(authService, authService, authService),
-		NewTerminalSessionService(authService),
-		NewTerminalPasswordResetService(auth.NewForgetPasswordService(authService)),
-		NewTerminalProfileService(profileService),
-	)
-}
