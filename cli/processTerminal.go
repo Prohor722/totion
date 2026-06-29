@@ -297,9 +297,3 @@ func ProcessTerminalInputWithAuth(authService auth.AuthService, profileService a
 		NewTerminalProfileService(profileService),
 	)
 }
-
-
-// ProcessTerminalInput starts the interactive CLI with the default auth and profile services.
-func ProcessTerminalInput() {
-	ProcessTerminalInputWithAuth(auth.DefaultAuth, auth.NewProfileService(store.UserStore))
-}
