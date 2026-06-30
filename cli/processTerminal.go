@@ -264,6 +264,56 @@ type updateProfileCommand struct {
 }
 
 
+func ProcessTerminalInputWithServices(users UserService, sessions SessionService, reset PasswordResetService, profiles ProfileService) {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Welcome to the User Management System")
+	fmt.Println("Available commands: register, login, logout, info, list, delete, changepassword, requestreset, resetpassword, viewprofile, updateprofile, exit")
+
+	commands := map[string]Command{
+		"register":       &registerCommand{users: users},
+		"login":          &loginCommand{sessions: sessions},
+		"logout":         &logoutCommand{sessions: sessions},
+		"info":           &infoCommand{users: users},
+		"list":           &listCommand{users: users},
+		"delete":         &deleteCommand{users: users},
+		"changepassword": &changePasswordCommand{users: users},
+		"requestreset":   &requestResetCommand{reset: reset},
+		"resetpassword":  &resetPasswordCommand{reset: reset},
+		"viewprofile":    &viewProfileCommand{users: users},
+		"updateprofile":  &updateProfileCommand{users: users, profiles: profiles},
+	}
+
+	for {
+		fmt.Print("> ")
+		if !scanner.Scan() {
+			break
+		}
+		input := strings.TrimSpace(scanner.Text())
+		if input == "" {
+			continue
+		}
+		args := strings.Fields(input)
+		cmdName := args[0]
+		if cmdName == "exit" {
+			fmt.Println("Exiting...")
+			return
+		}
+		cmd, ok := commands[cmdName]
+		if !ok {
+			fmt.Println("Unknown command. Available commands: register, login, logout, info, list, delete, changepassword, requestreset, resetpassword, viewprofile, updateprofile, exit")
+			continue
+		}
+		result, err := cmd.Execute(args)
+		if err != nil {
+			fmt.Println("Error:", err)
+			continue
+		}
+		if result != "" {
+			fmt.Println(result)
+		}
+	}
+}
+
 // ProcessTerminalInput starts the interactive CLI with the default auth and profile services.
 func ProcessTerminalInput() {
 	ProcessTerminalInputWithAuth(auth.DefaultAuth, auth.NewProfileService(store.UserStore))
