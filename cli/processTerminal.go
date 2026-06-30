@@ -264,6 +264,16 @@ type updateProfileCommand struct {
 }
 
 
+// ProcessTerminalInput handles user input from the terminal using a small, testable processor
+func ProcessTerminalInputWithAuth(authService auth.AuthService, profileService auth.ProfileService) {
+	ProcessTerminalInputWithServices(
+		NewTerminalUserService(authService, authService, authService),
+		NewTerminalSessionService(authService),
+		NewTerminalPasswordResetService(auth.NewForgetPasswordService(authService)),
+		NewTerminalProfileService(profileService),
+	)
+}
+
 func ProcessTerminalInputWithServices(users UserService, sessions SessionService, reset PasswordResetService, profiles ProfileService) {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Welcome to the User Management System")
