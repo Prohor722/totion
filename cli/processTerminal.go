@@ -19,6 +19,14 @@ type Command interface {
 	Execute(args []string) (string, error)
 }
 
+// UserService defines user-related operations used by commands
+type UserService interface {
+	Register(username, email, password string) error
+	ListAll() []string
+	Delete(username string) error
+	ChangePassword(sessionID, oldPassword, newPassword string) error
+	GetInfo(sessionID string) (*model.User, error)
+}
 
 // SessionService defines session-related operations used by commands
 type SessionService interface {
