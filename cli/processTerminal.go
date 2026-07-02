@@ -20,12 +20,6 @@ type Command interface {
 }
 
 
-// SessionService defines session-related operations used by commands
-type SessionService interface {
-	Login(username, password string) (string, error)
-	Logout(sessionID string) error
-}
-
 
 type ProfileService interface {
 	UpdateProfile(username string, update auth.ProfileUpdate) error
