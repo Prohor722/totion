@@ -65,19 +65,6 @@ func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
 	return &authProfileService{profile: profile}
 }
 
-func (d *authResetService) RequestReset(email string) (string, error) {
-	return d.reset.RequestReset(email)
-}
-
-
-func (d *authUserService) Register(u, e, p string) error {
-	return d.account.Register(u, e, p)
-}
-
-func (d *authUserService) ListAll() []string {
-	return d.account.ListUsernames()
-}
-
 func (d *authUserService) Delete(u string) error {
 	return d.account.DeleteUser(u)
 }
