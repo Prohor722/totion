@@ -90,6 +90,9 @@ type authSessionService struct {
 	credentials auth.CredentialService
 }
 
+func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
+	return &authSessionService{credentials: credentials}
+}
 
 func (d *authSessionService) Login(u, p string) (string, error) {
 	return d.credentials.Login(u, p)
