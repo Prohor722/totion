@@ -90,6 +90,10 @@ func (d *authUserService) ListAll() []string {
 }
 
 
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
+	return d.session.GetUserInfo(sessionID)
+}
+
 type authSessionService struct {
 	credentials auth.CredentialService
 }
