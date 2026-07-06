@@ -90,6 +90,10 @@ func (d *authUserService) ListAll() []string {
 }
 
 
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
