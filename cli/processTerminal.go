@@ -81,9 +81,6 @@ func NewTerminalUserService(account auth.RegistrationService, password auth.Pass
 	return &authUserService{account: account, password: password, session: session}
 }
 
-func (d *authUserService) ListAll() []string {
-	return d.account.ListUsernames()
-}
 
 func (d *authUserService) Delete(u string) error {
 	return d.account.DeleteUser(u)
