@@ -41,13 +41,6 @@ type PasswordResetService interface {
 
 
 
-func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
-	return &authProfileService{profile: profile}
-}
-
-func (d *authResetService) RequestReset(email string) (string, error) {
-	return d.reset.RequestReset(email)
-}
 
 func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
