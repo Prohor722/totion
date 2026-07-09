@@ -33,14 +33,6 @@ type SessionService interface {
 	Login(username, password string) (string, error)
 	Logout(sessionID string) error
 }
-
-type PasswordResetService interface {
-	RequestReset(email string) (string, error)
-	ResetPassword(token, newPassword string) error
-}
-
-
-
 type authResetService struct {
 	reset auth.ForgetPasswordService
 }
