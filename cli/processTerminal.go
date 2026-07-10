@@ -34,11 +34,6 @@ type SessionService interface {
 	Logout(sessionID string) error
 }
 
-type PasswordResetService interface {
-	RequestReset(email string) (string, error)
-	ResetPassword(token, newPassword string) error
-}
-
 type ProfileService interface {
 	UpdateProfile(username string, update auth.ProfileUpdate) error
 }
