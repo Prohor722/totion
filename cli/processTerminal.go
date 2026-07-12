@@ -85,6 +85,11 @@ func NewTerminalUserService(account auth.RegistrationService, password auth.Pass
 func (d *authUserService) ChangePassword(s, o, n string) error {
 	return d.password.ChangePassword(s, o, n)
 }
+
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
+	return d.session.GetUserInfo(sessionID)
+}
+
 type authSessionService struct {
 	credentials auth.CredentialService
 }
