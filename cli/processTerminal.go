@@ -89,6 +89,11 @@ func (d *authUserService) ListAll() []string {
 	return d.account.ListUsernames()
 }
 
+
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
