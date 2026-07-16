@@ -61,10 +61,6 @@ func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordR
 	return &authResetService{reset: reset}
 }
 
-func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
-	return &authProfileService{profile: profile}
-}
-
 func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
