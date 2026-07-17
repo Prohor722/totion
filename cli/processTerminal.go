@@ -70,13 +70,6 @@ func (d *authProfileService) UpdateProfile(username string, update auth.ProfileU
 	return d.profile.UpdateProfile(username, update)
 }
 
-func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
-	return &authUserService{account: account, password: password, session: session}
-}
-
-func (d *authUserService) Register(u, e, p string) error {
-	return d.account.Register(u, e, p)
-}
 
 func (d *authUserService) ListAll() []string {
 	return d.account.ListUsernames()
