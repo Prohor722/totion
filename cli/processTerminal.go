@@ -66,14 +66,6 @@ func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
 }
 
 
-func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
-	return d.profile.UpdateProfile(username, update)
-}
-
-
-func (d *authUserService) ListAll() []string {
-	return d.account.ListUsernames()
-}
 
 func (d *authUserService) Delete(u string) error {
 	return d.account.DeleteUser(u)
