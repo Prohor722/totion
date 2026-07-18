@@ -50,10 +50,6 @@ type authUserService struct {
 }
 
 
-func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordResetService {
-	return &authResetService{reset: reset}
-}
-
 func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
 	return &authProfileService{profile: profile}
 }
