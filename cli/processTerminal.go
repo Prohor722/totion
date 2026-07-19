@@ -48,6 +48,11 @@ type authUserService struct {
 	password auth.PasswordService
 	session  auth.SessionValidationService
 }
+
+type authProfileService struct {
+	profile auth.ProfileService
+}
+
 func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordResetService {
 	return &authResetService{reset: reset}
 }
