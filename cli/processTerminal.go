@@ -48,11 +48,6 @@ type authUserService struct {
 	password auth.PasswordService
 	session  auth.SessionValidationService
 }
-
-type authResetService struct {
-	reset auth.ForgetPasswordService
-}
-
 type authProfileService struct {
 	profile auth.ProfileService
 }
