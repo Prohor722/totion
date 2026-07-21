@@ -73,11 +73,6 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
 
-
-func (d *authUserService) Register(u, e, p string) error {
-	return d.account.Register(u, e, p)
-}
-
 func (d *authUserService) ListAll() []string {
 	return d.account.ListUsernames()
 }
