@@ -25,6 +25,11 @@ type SessionService interface {
 	Login(username, password string) (string, error)
 	Logout(sessionID string) error
 }
+
+type ProfileService interface {
+	UpdateProfile(username string, update auth.ProfileUpdate) error
+}
+
 type authUserService struct {
 	account  auth.RegistrationService
 	password auth.PasswordService
