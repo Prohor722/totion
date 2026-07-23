@@ -42,6 +42,13 @@ type PasswordResetService interface {
 type ProfileService interface {
 	UpdateProfile(username string, update auth.ProfileUpdate) error
 }
+
+type authUserService struct {
+	account  auth.RegistrationService
+	password auth.PasswordService
+	session  auth.SessionValidationService
+}
+
 type authResetService struct {
 	reset auth.ForgetPasswordService
 }
