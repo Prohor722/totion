@@ -53,15 +53,6 @@ type authResetService struct {
 	reset auth.ForgetPasswordService
 }
 
-type authProfileService struct {
-	profile auth.ProfileService
-}
-
-
-func (d *authResetService) RequestReset(email string) (string, error) {
-	return d.reset.RequestReset(email)
-}
-
 func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
 	return d.profile.UpdateProfile(username, update)
 }
