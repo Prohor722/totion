@@ -73,6 +73,10 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
 
+func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
+	return &authUserService{account: account, password: password, session: session}
+}
+
 func (d *authUserService) Register(u, e, p string) error {
 	return d.account.Register(u, e, p)
 }
