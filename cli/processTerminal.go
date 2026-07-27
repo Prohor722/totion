@@ -65,10 +65,6 @@ func NewTerminalProfileService(profile auth.ProfileService) ProfileService {
 	return &authProfileService{profile: profile}
 }
 
-func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
-	return d.profile.UpdateProfile(username, update)
-}
-
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
 	return &authUserService{account: account, password: password, session: session}
 }
