@@ -81,10 +81,6 @@ func (d *authUserService) Register(u, e, p string) error {
 	return d.account.Register(u, e, p)
 }
 
-func (d *authUserService) ListAll() []string {
-	return d.account.ListUsernames()
-}
-
 func (d *authUserService) Delete(u string) error {
 	return d.account.DeleteUser(u)
 }
