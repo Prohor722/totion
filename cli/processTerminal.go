@@ -28,6 +28,11 @@ type UserService interface {
 	GetInfo(sessionID string) (*model.User, error)
 }
 
+type PasswordResetService interface {
+	RequestReset(email string) (string, error)
+	ResetPassword(token, newPassword string) error
+}
+
 type ProfileService interface {
 	UpdateProfile(username string, update auth.ProfileUpdate) error
 }
