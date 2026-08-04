@@ -38,6 +38,11 @@ type PasswordResetService interface {
 	RequestReset(email string) (string, error)
 	ResetPassword(token, newPassword string) error
 }
+type authUserService struct {
+	account  auth.RegistrationService
+	password auth.PasswordService
+	session  auth.SessionValidationService
+}
 
 type authResetService struct {
 	reset auth.ForgetPasswordService
