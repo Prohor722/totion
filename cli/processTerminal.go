@@ -69,10 +69,6 @@ func (d *authResetService) RequestReset(email string) (string, error) {
 	return d.reset.RequestReset(email)
 }
 
-func (d *authResetService) ResetPassword(token, newPassword string) error {
-	return d.reset.ResetPassword(token, newPassword)
-}
-
 func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
 	return d.profile.UpdateProfile(username, update)
 }
