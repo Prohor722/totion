@@ -80,14 +80,6 @@ func (d *authProfileService) UpdateProfile(username string, update auth.ProfileU
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
 	return &authUserService{account: account, password: password, session: session}
 }
-func (d *authUserService) ChangePassword(s, o, n string) error {
-	return d.password.ChangePassword(s, o, n)
-}
-
-func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
-	return d.session.GetUserInfo(sessionID)
-}
-
 type authSessionService struct {
 	credentials auth.CredentialService
 }
