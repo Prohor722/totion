@@ -81,10 +81,6 @@ func NewTerminalUserService(account auth.RegistrationService, password auth.Pass
 	return &authUserService{account: account, password: password, session: session}
 }
 
-func (d *authUserService) Register(u, e, p string) error {
-	return d.account.Register(u, e, p)
-}
-
 func (d *authUserService) ListAll() []string {
 	return d.account.ListUsernames()
 }
