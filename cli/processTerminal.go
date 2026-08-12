@@ -97,6 +97,10 @@ func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 	return d.session.GetUserInfo(sessionID)
 }
 
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
