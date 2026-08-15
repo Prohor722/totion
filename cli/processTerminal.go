@@ -131,6 +131,16 @@ func (c *registerCommand) Execute(args []string) (string, error) {
 }
 
 
+func (c *logoutCommand) Execute(args []string) (string, error) {
+	if len(args) != 2 {
+		return "", errors.New("Usage: logout <sessionID>")
+	}
+	if err := c.sessions.Logout(args[1]); err != nil {
+		return "", err
+	}
+	return "Logged out successfully", nil
+}
+
 type infoCommand struct{ users UserService }
 
 func (c *infoCommand) Execute(args []string) (string, error) {
