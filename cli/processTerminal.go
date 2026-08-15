@@ -130,6 +130,10 @@ func (c *registerCommand) Execute(args []string) (string, error) {
 	return "Registered successfully", nil
 }
 
+type loginCommand struct{ sessions SessionService }
+
+
+type logoutCommand struct{ sessions SessionService }
 
 func (c *logoutCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
