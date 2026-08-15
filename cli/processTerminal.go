@@ -132,6 +132,12 @@ func (c *registerCommand) Execute(args []string) (string, error) {
 
 type loginCommand struct{ sessions SessionService }
 
+func (c *loginCommand) Execute(args []string) (string, error) {
+	if len(args) != 3 {
+		return "", errors.New("Usage: login <username> <password>")
+	}
+	return c.sessions.Login(args[1], args[2])
+}
 
 type logoutCommand struct{ sessions SessionService }
 
