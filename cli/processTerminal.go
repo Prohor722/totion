@@ -151,11 +151,6 @@ func (c *logoutCommand) Execute(args []string) (string, error) {
 	return "Logged out successfully", nil
 }
 
-type infoCommand struct{ users UserService }
-
-type listCommand struct{ users UserService }
-
-type deleteCommand struct{ users UserService }
 
 func (c *deleteCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
