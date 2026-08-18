@@ -114,16 +114,6 @@ func (d *authSessionService) Login(u, p string) (string, error) {
 }
 
 
-func (c *registerCommand) Execute(args []string) (string, error) {
-	if len(args) != 4 {
-		return "", errors.New("Usage: register <username> <email> <password>")
-	}
-	if err := c.users.Register(args[1], args[2], args[3]); err != nil {
-		return "", err
-	}
-	return "Registered successfully", nil
-}
-
 type loginCommand struct{ sessions SessionService }
 
 func (c *loginCommand) Execute(args []string) (string, error) {
