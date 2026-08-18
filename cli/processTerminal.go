@@ -113,6 +113,8 @@ func (d *authSessionService) Login(u, p string) (string, error) {
 	return d.credentials.Login(u, p)
 }
 
+// Concrete command implementations
+type registerCommand struct{ users UserService }
 
 func (c *registerCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 {
