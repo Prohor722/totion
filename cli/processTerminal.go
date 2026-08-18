@@ -113,6 +113,9 @@ func (d *authSessionService) Login(u, p string) (string, error) {
 	return d.credentials.Login(u, p)
 }
 
+
+type loginCommand struct{ sessions SessionService }
+
 func (c *loginCommand) Execute(args []string) (string, error) {
 	if len(args) != 3 {
 		return "", errors.New("Usage: login <username> <password>")
