@@ -129,7 +129,7 @@ func (c *infoCommand) Execute(args []string) (string, error) {
 	}
 	user, err := c.users.GetInfo(args[1])
 	if err != nil {
-		return "", err
+		return "", errz
 	}
 	if user == nil {
 		return "", errors.New("user not found")
