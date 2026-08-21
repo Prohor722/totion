@@ -121,11 +121,6 @@ func (d *authSessionService) Logout(s string) error {
 type registerCommand struct{ users UserService }
 
 
-type loginCommand struct{ sessions SessionService }
-
-
-type logoutCommand struct{ sessions SessionService }
-
 func (c *logoutCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
 		return "", errors.New("Usage: logout <sessionID>")
