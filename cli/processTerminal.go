@@ -101,10 +101,6 @@ func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 	return d.session.GetUserInfo(sessionID)
 }
 
-func (d *authSessionService) Login(u, p string) (string, error) {
-	return d.credentials.Login(u, p)
-}
-
 // Concrete command implementations
 type registerCommand struct{ users UserService }
 
