@@ -85,6 +85,15 @@ func (d *authUserService) Register(u, e, p string) error {
 	return d.account.Register(u, e, p)
 }
 
+
+func (d *authUserService) ChangePassword(s, o, n string) error {
+	return d.password.ChangePassword(s, o, n)
+}
+
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
