@@ -85,6 +85,11 @@ func NewTerminalUserService(account auth.RegistrationService, password auth.Pass
 func (d *authUserService) Delete(u string) error {
 	return d.account.DeleteUser(u)
 }
+
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
+	return d.session.GetUserInfo(sessionID)
+}
+
 type authSessionService struct {
 	credentials auth.CredentialService
 }
