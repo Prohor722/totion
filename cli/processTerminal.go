@@ -81,15 +81,6 @@ func NewTerminalUserService(account auth.RegistrationService, password auth.Pass
 	return &authUserService{account: account, password: password, session: session}
 }
 
-func (d *authUserService) Register(u, e, p string) error {
-	return d.account.Register(u, e, p)
-}
-
-
-func (d *authUserService) ChangePassword(s, o, n string) error {
-	return d.password.ChangePassword(s, o, n)
-}
-
 func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 	return d.session.GetUserInfo(sessionID)
 }
