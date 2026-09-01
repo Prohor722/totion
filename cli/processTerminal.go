@@ -81,6 +81,14 @@ func NewTerminalUserService(account auth.RegistrationService, password auth.Pass
 	return &authUserService{account: account, password: password, session: session}
 }
 
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
+	return d.session.GetUserInfo(sessionID)
+}
+
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
