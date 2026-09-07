@@ -100,12 +100,6 @@ func (d *authUserService) ChangePassword(s, o, n string) error {
 func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 	return d.session.GetUserInfo(sessionID)
 }
-func (d *authSessionService) Logout(s string) error {
-	return d.credentials.Logout(s)
-}
-
-// Concrete command implementations
-type registerCommand struct{ users UserService }
 
 func (c *registerCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 {
