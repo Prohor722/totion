@@ -109,6 +109,11 @@ func NewTerminalSessionService(credentials auth.CredentialService) SessionServic
 	return &authSessionService{credentials: credentials}
 }
 
+func (d *authSessionService) Login(u, p string) (string, error) {
+	return d.credentials.Login(u, p)
+}
+
+
 // Concrete command implementations
 type registerCommand struct{ users UserService }
 
