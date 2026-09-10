@@ -105,6 +105,13 @@ type authSessionService struct {
 	credentials auth.CredentialService
 }
 
+func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
+	return &authSessionService{credentials: credentials}
+}
+
+// Concrete command implementations
+type registerCommand struct{ users UserService }
+
 func (c *registerCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 {
 		return "", errors.New("Usage: register <username> <email> <password>")
