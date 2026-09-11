@@ -117,6 +117,17 @@ func (d *authSessionService) Logout(s string) error {
 	return d.credentials.Logout(s)
 }
 
+// Concrete command implementations
+type registerCommand struct{ users UserService }
+
+type loginCommand struct{ sessions SessionService }
+
+func (c *loginCommand) Execute(args []string) (string, error) {
+	if len(args) != 3 {
+		return "", errors.New("Usage: login <username> <password>")
+	}
+	return c.sessions.Login(args[1], args[2])
+}
 
 type logoutCommand struct{ sessions SessionService }
 
