@@ -120,19 +120,6 @@ func (d *authSessionService) Logout(s string) error {
 // Concrete command implementations
 type registerCommand struct{ users UserService }
 
-
-type logoutCommand struct{ sessions SessionService }
-
-func (c *logoutCommand) Execute(args []string) (string, error) {
-	if len(args) != 2 {
-		return "", errors.New("Usage: logout <sessionID>")
-	}
-	if err := c.sessions.Logout(args[1]); err != nil {
-		return "", err
-	}
-	return "Logged out successfully", nil
-}
-
 type infoCommand struct{ users UserService }
 
 func (c *infoCommand) Execute(args []string) (string, error) {
