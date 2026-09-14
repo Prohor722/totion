@@ -184,24 +184,6 @@ func (c *listCommand) Execute(args []string) (string, error) {
 	return b.String(), nil
 }
 
-type requestResetCommand struct{ reset PasswordResetService }
-
-func (c *requestResetCommand) Execute(args []string) (string, error) {
-	if len(args) != 2 {
-		return "", errors.New("Usage: requestreset <email>")
-	}
-
-	_, err := c.reset.RequestReset(args[1])
-	if err != nil {
-		if errors.Is(err, auth.ErrEmailNotFound) || errors.Is(err, auth.ErrTooManyResetRequests) {
-			return genericPasswordResetResponse, nil
-		}
-		return "", err
-	}
-
-	return genericPasswordResetResponse, nil
-}
-
 type resetPasswordCommand struct{ reset PasswordResetService }
 
 func (c *resetPasswordCommand) Execute(args []string) (string, error) {
