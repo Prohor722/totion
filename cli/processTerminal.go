@@ -238,6 +238,13 @@ func (c *resetPasswordCommand) Execute(args []string) (string, error) {
 	return "Password reset successfully", nil
 }
 
+type viewProfileCommand struct{ users UserService }
+
+
+type updateProfileCommand struct {
+	users    UserService
+	profiles ProfileService
+}
 
 func (c *updateProfileCommand) Execute(args []string) (string, error) {
 	if len(args) != 4 && len(args) != 5 {
