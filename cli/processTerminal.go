@@ -226,11 +226,6 @@ func (c *requestResetCommand) Execute(args []string) (string, error) {
 	return genericPasswordResetResponse, nil
 }
 
-type resetPasswordCommand struct{ reset PasswordResetService }
-
-
-type viewProfileCommand struct{ users UserService }
-
 func (c *viewProfileCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
 		return "", errors.New("Usage: viewprofile <sessionID>")
