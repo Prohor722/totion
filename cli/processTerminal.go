@@ -228,6 +228,15 @@ func (c *requestResetCommand) Execute(args []string) (string, error) {
 
 type resetPasswordCommand struct{ reset PasswordResetService }
 
+func (c *resetPasswordCommand) Execute(args []string) (string, error) {
+	if len(args) != 3 {
+		return "", errors.New("Usage: resetpassword <token> <newPassword>")
+	}
+	if err := c.reset.ResetPassword(args[1], args[2]); err != nil {
+		return "", err
+	}
+	return "Password reset successfully", nil
+}
 
 type viewProfileCommand struct{ users UserService }
 
