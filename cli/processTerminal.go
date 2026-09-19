@@ -224,7 +224,7 @@ func (c *requestResetCommand) Execute(args []string) (string, error) {
 	}
 
 	return genericPasswordResetResponse, nil
-}
+
 
 func (c *viewProfileCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
