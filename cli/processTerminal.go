@@ -196,6 +196,11 @@ func (c *deleteCommand) Execute(args []string) (string, error) {
 	return "User deleted successfully", nil
 }
 
+type changePasswordCommand struct{ users UserService }
+
+
+type requestResetCommand struct{ reset PasswordResetService }
+
 func (c *requestResetCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
 		return "", errors.New("Usage: requestreset <email>")
