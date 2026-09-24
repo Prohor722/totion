@@ -154,23 +154,6 @@ func (c *logoutCommand) Execute(args []string) (string, error) {
 type infoCommand struct{ users UserService }
 
 
-type listCommand struct{ users UserService }
-
-func (c *listCommand) Execute(args []string) (string, error) {
-	users := c.users.ListAll()
-	if len(users) == 0 {
-		return "No registered users.", nil
-	}
-	var b strings.Builder
-	b.WriteString("Registered users:\n")
-	for _, u := range users {
-		b.WriteString("  - ")
-		b.WriteString(u)
-		b.WriteByte('\n')
-	}
-	return b.String(), nil
-}
-
 type deleteCommand struct{ users UserService }
 
 func (c *deleteCommand) Execute(args []string) (string, error) {
