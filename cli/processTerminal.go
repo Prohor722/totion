@@ -169,6 +169,34 @@ func (c *infoCommand) Execute(args []string) (string, error) {
 
 type listCommand struct{ users UserService }
 
+func (c *listCommand) Execute(args []string) (string, error) {
+	users := c.users.ListAll()
+	if len(users) == 0 {
+		return "No registered users.", nil
+	}
+	var b strings.Builder
+	b.WriteString("Registered users:\n")
+	for _, u := range users {
+		b.WriteString("  - ")
+		b.WriteString(u)
+		b.WriteByte('\n')
+	}
+	return b.String(), nil
+}
+
+type deleteCommand struct{ users UserService }
+
+func (c *deleteCommand) Execute(args []string) (string, error) {
+	if len(args) != 2 {
+		return "", errors.New("Usage: delete <username>")
+	}
+	if err := c.users.Delete(args[1]); err != nil {
+		return "", err
+	}
+	return "User deleted successfully", nil
+}
+
+type requestResetCommand struct{ reset PasswordResetService }
 
 func (c *requestResetCommand) Execute(args []string) (string, error) {
 	if len(args) != 2 {
