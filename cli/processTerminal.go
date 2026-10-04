@@ -287,8 +287,3 @@ func (c *updateProfileCommand) Execute(args []string) (string, error) {
 	}
 	return "Profile updated successfully", nil
 }
-
-// ProcessTerminalInput starts the interactive CLI with the default auth and profile services.
-func ProcessTerminalInput() {
-	ProcessTerminalInputWithAuth(auth.DefaultAuth, auth.NewProfileService(store.UserStore))
-}
