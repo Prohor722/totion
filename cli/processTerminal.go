@@ -184,17 +184,6 @@ func (c *listCommand) Execute(args []string) (string, error) {
 	return b.String(), nil
 }
 
-type deleteCommand struct{ users UserService }
-
-func (c *deleteCommand) Execute(args []string) (string, error) {
-	if len(args) != 2 {
-		return "", errors.New("Usage: delete <username>")
-	}
-	if err := c.users.Delete(args[1]); err != nil {
-		return "", err
-	}
-	return "User deleted successfully", nil
-}
 
 type changePasswordCommand struct{ users UserService }
 
