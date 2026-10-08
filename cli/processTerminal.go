@@ -69,6 +69,14 @@ func (d *authResetService) RequestReset(email string) (string, error) {
 	return d.reset.RequestReset(email)
 }
 
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
+	return d.session.GetUserInfo(sessionID)
+}
+
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
