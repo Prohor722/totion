@@ -85,17 +85,6 @@ func (d *authUserService) Register(u, e, p string) error {
 	return d.account.Register(u, e, p)
 }
 
-func (d *authUserService) ListAll() []string {
-	return d.account.ListUsernames()
-}
-func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
-	return d.session.GetUserInfo(sessionID)
-}
-
-type authSessionService struct {
-	credentials auth.CredentialService
-}
-
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
