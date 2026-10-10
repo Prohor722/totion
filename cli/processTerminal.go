@@ -57,14 +57,6 @@ type authProfileService struct {
 	profile auth.ProfileService
 }
 
-func (d *authResetService) ResetPassword(token, newPassword string) error {
-	return d.reset.ResetPassword(token, newPassword)
-}
-
-func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
-	return d.profile.UpdateProfile(username, update)
-}
-
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
 	return &authUserService{account: account, password: password, session: session}
 }
