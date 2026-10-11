@@ -73,17 +73,6 @@ func (d *authResetService) ResetPassword(token, newPassword string) error {
 	return d.reset.ResetPassword(token, newPassword)
 }
 
-func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
-	return d.profile.UpdateProfile(username, update)
-}
-
-func (d *authUserService) Delete(u string) error {
-	return d.account.DeleteUser(u)
-}
-
-func (d *authUserService) ChangePassword(s, o, n string) error {
-	return d.password.ChangePassword(s, o, n)
-}
 
 func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
 	return d.session.GetUserInfo(sessionID)
