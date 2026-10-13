@@ -43,29 +43,6 @@ type ProfileService interface {
 	UpdateProfile(username string, update auth.ProfileUpdate) error
 }
 
-type authUserService struct {
-	account  auth.RegistrationService
-	password auth.PasswordService
-	session  auth.SessionValidationService
-}
-
-type authResetService struct {
-	reset auth.ForgetPasswordService
-}
-
-type authProfileService struct {
-	profile auth.ProfileService
-}
-
-
-func (d *authResetService) ResetPassword(token, newPassword string) error {
-	return d.reset.ResetPassword(token, newPassword)
-}
-
-func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
-	return d.profile.UpdateProfile(username, update)
-}
-
 func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
 	return &authUserService{account: account, password: password, session: session}
 }
