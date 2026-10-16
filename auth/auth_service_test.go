@@ -147,3 +147,25 @@ func TestAuthService_PasswordResetFlow(t *testing.T) {
 		t.Fatalf("Login with new password failed: %v", err)
 	}
 }
+
+func TestAuthService_PasswordResetTokenExpires(t *testing.T) {
+	clock := &testClock{now: time.Now()}
+	users := store.NewInMemoryUserRepository()
+	sessions := NewInMemorySessionRepository()
+	auth := NewAuthServiceWithClock(users, sessions, clock)
+
+	if err := auth.Register("evan", "evan@example.com", "Reset2#A"); err != nil {
+		t.Fatalf("Register failed: %v", err)
+	}
+
+	token, err := auth.CreatePasswordResetToken("evan@example.com")
+	if err != nil {
+		t.Fatalf("CreatePasswordResetToken failed: %v", err)
+	}
+
+	clock.Advance(util.PasswordResetTokenTTL + time.Minute)
+	if err := auth.ResetPasswordWithToken(token, "Another1$"); err == nil {
+		t.Fatal("expected reset token to expire")
+	}
+}
+
