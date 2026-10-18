@@ -14,6 +14,19 @@ import (
 
 const genericPasswordResetResponse = "If an account with that email exists, password reset instructions have been sent."
 
+// Command represents a terminal action
+type Command interface {
+	Execute(args []string) (string, error)
+}
+
+type PasswordResetService interface {
+	RequestReset(email string) (string, error)
+	ResetPassword(token, newPassword string) error
+}
+
+type ProfileService interface {
+	UpdateProfile(username string, update auth.ProfileUpdate) error
+}
 
 type authUserService struct {
 	account  auth.RegistrationService
