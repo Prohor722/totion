@@ -77,6 +77,14 @@ func (d *authProfileService) UpdateProfile(username string, update auth.ProfileU
 	return d.profile.UpdateProfile(username, update)
 }
 
+func (d *authUserService) GetInfo(sessionID string) (*model.User, error) {
+	return d.session.GetUserInfo(sessionID)
+}
+
+type authSessionService struct {
+	credentials auth.CredentialService
+}
+
 func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
 	return &authSessionService{credentials: credentials}
 }
