@@ -139,6 +139,23 @@ func (c *loginCommand) Execute(args []string) (string, error) {
 	return c.sessions.Login(args[1], args[2])
 }
 
+
+type infoCommand struct{ users UserService }
+
+func (c *infoCommand) Execute(args []string) (string, error) {
+	if len(args) != 2 {
+		return "", errors.New("Usage: info <sessionID>")
+	}
+	user, err := c.users.GetInfo(args[1])
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", errors.New("user not found")
+	}
+	return fmt.Sprintf("Username: %s, Email: %s", user.Username, user.Email), nil
+}
+
 type listCommand struct{ users UserService }
 
 func (c *listCommand) Execute(args []string) (string, error) {
