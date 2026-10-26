@@ -28,6 +28,16 @@ type UserService interface {
 	GetInfo(sessionID string) (*model.User, error)
 }
 
+// SessionService defines session-related operations used by commands
+type SessionService interface {
+	Login(username, password string) (string, error)
+	Logout(sessionID string) error
+}
+
+type PasswordResetService interface {
+	RequestReset(email string) (string, error)
+	ResetPassword(token, newPassword string) error
+}
 
 type ProfileService interface {
 	UpdateProfile(username string, update auth.ProfileUpdate) error
