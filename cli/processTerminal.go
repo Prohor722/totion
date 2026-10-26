@@ -27,13 +27,6 @@ type UserService interface {
 	ChangePassword(sessionID, oldPassword, newPassword string) error
 	GetInfo(sessionID string) (*model.User, error)
 }
-type authResetService struct {
-	reset auth.ForgetPasswordService
-}
-
-type authProfileService struct {
-	profile auth.ProfileService
-}
 
 func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordResetService {
 	return &authResetService{reset: reset}
