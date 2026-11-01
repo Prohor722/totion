@@ -93,6 +93,15 @@ func (d *authUserService) Delete(u string) error {
 	return d.account.DeleteUser(u)
 }
 
+
+func (d *authSessionService) Login(u, p string) (string, error) {
+	return d.credentials.Login(u, p)
+}
+
+func (d *authSessionService) Logout(s string) error {
+	return d.credentials.Logout(s)
+}
+
 // Concrete command implementations
 type registerCommand struct{ users UserService }
 
