@@ -56,6 +56,15 @@ type authResetService struct {
 type authProfileService struct {
 	profile auth.ProfileService
 }
+
+func (d *authProfileService) UpdateProfile(username string, update auth.ProfileUpdate) error {
+	return d.profile.UpdateProfile(username, update)
+}
+
+func NewTerminalUserService(account auth.RegistrationService, password auth.PasswordService, session auth.SessionValidationService) UserService {
+	return &authUserService{account: account, password: password, session: session}
+}
+
 func (d *authUserService) Register(u, e, p string) error {
 	return d.account.Register(u, e, p)
 }
