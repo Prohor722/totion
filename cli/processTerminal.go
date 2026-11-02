@@ -15,15 +15,6 @@ import (
 const genericPasswordResetResponse = "If an account with that email exists, password reset instructions have been sent."
 
 
-type PasswordResetService interface {
-	RequestReset(email string) (string, error)
-	ResetPassword(token, newPassword string) error
-}
-
-type ProfileService interface {
-	UpdateProfile(username string, update auth.ProfileUpdate) error
-}
-
 type authUserService struct {
 	account  auth.RegistrationService
 	password auth.PasswordService
