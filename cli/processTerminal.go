@@ -89,6 +89,14 @@ func (d *authUserService) ChangePassword(s, o, n string) error {
 	return d.password.ChangePassword(s, o, n)
 }
 
+func NewTerminalSessionService(credentials auth.CredentialService) SessionService {
+	return &authSessionService{credentials: credentials}
+}
+
+func (d *authSessionService) Login(u, p string) (string, error) {
+	return d.credentials.Login(u, p)
+}
+
 func (d *authSessionService) Logout(s string) error {
 	return d.credentials.Logout(s)
 }
