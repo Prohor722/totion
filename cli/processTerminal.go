@@ -61,6 +61,14 @@ func NewTerminalPasswordResetService(reset auth.ForgetPasswordService) PasswordR
 	return &authResetService{reset: reset}
 }
 
+func (d *authUserService) ListAll() []string {
+	return d.account.ListUsernames()
+}
+
+func (d *authUserService) Delete(u string) error {
+	return d.account.DeleteUser(u)
+}
+
 func (d *authUserService) ChangePassword(s, o, n string) error {
 	return d.password.ChangePassword(s, o, n)
 }
