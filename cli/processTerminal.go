@@ -80,6 +80,31 @@ func (d *authProfileService) UpdateProfile(username string, update auth.ProfileU
 func (d *authUserService) ListAll() []string {
 	return d.account.ListUsernames()
 }
+
+func (d *authUserService) Delete(u string) error {
+	return d.account.DeleteUser(u)
+}
+
+func (d *authUserService) ChangePassword(s, o, n string) error {
+	return d.password.ChangePassword(s, o, n)
+}
+func (d *authSessionService) Logout(s string) error {
+	return d.credentials.Logout(s)
+}
+
+// Concrete command implementations
+type registerCommand struct{ users UserService }
+
+func (c *registerCommand) Execute(args []string) (string, error) {
+	if len(args) != 4 {
+		return "", errors.New("Usage: register <username> <email> <password>")
+	}
+	if err := c.users.Register(args[1], args[2], args[3]); err != nil {
+		return "", err
+	}
+	return "Registered successfully", nil
+}
+
 type loginCommand struct{ sessions SessionService }
 
 func (c *loginCommand) Execute(args []string) (string, error) {
